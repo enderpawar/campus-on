@@ -2121,6 +2121,91 @@ form > .primary-button {
 .result-source {
   font-size: var(--text-xs);
   color: var(--color-muted);
+  margin-top: var(--space-md);
+}
+.summary-lead {
+  color: var(--color-ink-2);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--color-rule);
+}
+.summary-section {
+  padding: var(--space-lg) 0 var(--space-md);
+  border-bottom: 1px solid var(--color-rule);
+  scroll-margin-top: var(--space-3xl);
+}
+.summary-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+.summary-section h3 {
+  font-size: var(--text-md);
+  line-height: 1.5;
+}
+.summary-section.current h3 {
+  color: var(--color-accent);
+}
+.summary-jump {
+  flex-shrink: 0;
+  padding: var(--space-3xs) var(--space-xs);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-tag);
+}
+.summary-jump[aria-current] {
+  color: var(--color-accent);
+  border-color: var(--color-accent-soft);
+  background: var(--color-accent-wash);
+}
+.summary-section > p {
+  margin-top: var(--space-xs);
+}
+.summary-section li {
+  margin-top: var(--space-2xs);
+}
+.summary-section li ul {
+  margin: var(--space-2xs) 0 0;
+}
+.summary-table {
+  margin: var(--space-sm) 0;
+  overflow-x: auto;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-control);
+}
+.summary-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+.summary-table th,
+.summary-table td {
+  padding: var(--space-xs) var(--space-sm);
+  text-align: left;
+  vertical-align: top;
+  line-height: 1.6;
+  border-bottom: 1px solid var(--color-rule);
+}
+.summary-table tr:last-child td {
+  border-bottom: 0;
+}
+.summary-table th {
+  font-weight: 600;
+  color: var(--color-ink-2);
+  background: var(--color-paper-2);
+  white-space: nowrap;
+}
+.summary-table td:first-child {
+  white-space: nowrap;
+  color: var(--color-ink);
+}
+@media (min-width: 1200px) {
+  .material-source {
+    position: sticky;
+    top: 100px;
+  }
 }
 .concept-list {
   margin: 0;
@@ -2384,5 +2469,12 @@ form > .primary-button {
   }
   .quiz-options {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .summary-table table {
+    font-size: var(--text-xs);
+  }
+  .summary-table th,
+  .summary-table td {
+    padding: var(--space-xs);
   }
 }

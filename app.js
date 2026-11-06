@@ -307,12 +307,63 @@ const courses = {
           ["p.27 ~ 32", "수강신청 테이블 정규화 예제"],
         ],
         summary: {
-          lead: "정규화는 데이터 중복을 줄이고 삽입, 갱신, 삭제 이상을 방지하는 과정입니다.",
-          points: [
-            "1NF: 각 속성은 원자값을 가집니다.",
-            "2NF: 비주요 속성의 부분 함수 종속을 제거합니다.",
-            "3NF: 비주요 속성의 이행적 종속을 제거합니다.",
-            "BCNF: 모든 비자명한 함수 종속의 결정자가 슈퍼키입니다.",
+          lead: "정규화는 테이블을 나눠 데이터 중복을 줄이고 삽입, 갱신, 삭제 이상을 막는 과정입니다. 이번 자료는 이상 현상, 함수 종속, 정규형, 예제 순서로 설명합니다.",
+          sections: [
+            {
+              lead: "한 테이블에 여러 주제의 데이터를 몰아 담으면 같은 값이 여러 행에 반복되고, 이 중복 때문에 세 가지 이상 현상이 생깁니다.",
+              table: [
+                ["이상 현상", "발생 상황", "수강신청 테이블 예시"],
+                ["삽입 이상", "원하지 않는 데이터까지 함께 넣어야 함", "수강 과목이 없는 신입생을 등록할 수 없음"],
+                ["갱신 이상", "중복된 값의 일부만 바뀌어 불일치가 생김", "학과 사무실을 한 행에서만 고침"],
+                ["삭제 이상", "필요한 데이터까지 함께 지워짐", "마지막 수강 기록을 지우면 학생 정보도 사라짐"],
+              ],
+              points: [["핵심", "이상 현상의 원인은 중복이고, 중복은 잘못 묶인 함수 종속에서 생깁니다."]],
+            },
+            {
+              lead: "X 값이 정해지면 Y 값이 하나로 정해질 때 Y는 X에 함수 종속(X → Y)이라고 합니다. 모든 정규형은 이 종속 관계로 정의됩니다.",
+              points: [
+                ["완전 함수 종속", "Y가 기본키 전체에 종속됩니다. 예: {학번, 과목코드} → 성적"],
+                ["부분 함수 종속", "Y가 기본키 일부에만 종속됩니다. 예: {학번, 과목코드} 중 학번 → 이름"],
+                ["이행적 종속", "X → Y, Y → Z이면 X → Z가 됩니다. 예: 학번 → 학과, 학과 → 학과 사무실"],
+                [
+                  "암스트롱 공리",
+                  "주어진 종속에서 새 종속을 이끌어내는 세 규칙입니다.",
+                  [
+                    ["반사", "Y가 X의 부분집합이면 X → Y"],
+                    ["첨가", "X → Y이면 XZ → YZ"],
+                    ["이행", "X → Y이고 Y → Z이면 X → Z"],
+                  ],
+                ],
+              ],
+            },
+            {
+              lead: "정규형은 단계가 올라갈수록 조건이 엄격해지고, 앞 단계를 만족해야 다음 단계로 갈 수 있습니다.",
+              table: [
+                ["정규형", "조건", "없애는 것"],
+                ["1NF", "모든 속성이 원자값", "반복 그룹, 한 칸에 여러 값"],
+                ["2NF", "1NF이고 부분 함수 종속이 없음", "기본키 일부에 대한 종속"],
+                ["3NF", "2NF이고 이행적 종속이 없음", "기본키가 아닌 속성 사이의 종속"],
+                ["BCNF", "모든 결정자가 슈퍼키", "후보키가 아닌 결정자"],
+              ],
+              points: [["3NF와 BCNF", "대부분의 테이블은 3NF면 BCNF도 만족합니다. 후보키가 여러 개이고 서로 겹칠 때만 차이가 납니다."]],
+            },
+            {
+              lead: "수강신청(학번, 이름, 학과, 학과 사무실, 과목코드, 과목명, 성적) 테이블을 단계별로 나눕니다.",
+              points: [
+                ["2NF로", "이름과 학과는 학번에만, 과목명은 과목코드에만 종속되므로 학생, 과목, 수강 테이블로 나눕니다."],
+                ["3NF로", "학번 → 학과 → 학과 사무실로 이어지는 종속을 끊기 위해 학과 테이블을 따로 둡니다."],
+                [
+                  "결과",
+                  "네 테이블이 됩니다.",
+                  [
+                    ["학생", "학번, 이름, 학과"],
+                    ["학과", "학과, 학과 사무실"],
+                    ["과목", "과목코드, 과목명"],
+                    ["수강", "학번, 과목코드, 성적"],
+                  ],
+                ],
+              ],
+            },
           ],
         },
         concepts: [
@@ -377,12 +428,72 @@ const courses = {
           ["39:00", "핵심 개념 정리"],
         ],
         summary: {
-          lead: "프로세스는 실행 중인 프로그램이며 독립적인 주소 공간을 가집니다. 같은 프로세스의 스레드는 코드, 데이터, 열린 파일을 공유하고 스택과 레지스터는 따로 가집니다.",
-          points: [
-            "프로세스 상태: 생성, 준비, 실행, 대기, 종료",
-            "문맥 교환 때 PCB에 레지스터와 상태를 저장하고 복원합니다.",
-            "스레드 전환은 주소 공간을 바꾸지 않아 프로세스 전환보다 가볍습니다.",
-            "공유 자원에 동시에 접근하면 경쟁 상태가 생기므로 동기화가 필요합니다.",
+          lead: "프로세스는 실행 중인 프로그램이고, 스레드는 프로세스 안의 실행 흐름입니다. 이번 강의는 상태 전이와 문맥 교환을 거쳐 스레드, 동시성, 동기화까지 다룹니다.",
+          sections: [
+            {
+              lead: "프로세스는 코드, 데이터, 힙, 스택 영역으로 된 독립적인 주소 공간을 가지고, 실행되는 동안 다섯 가지 상태를 오갑니다.",
+              points: [
+                [
+                  "상태 전이",
+                  "생성, 준비, 실행, 대기, 종료 사이를 옮겨 다닙니다.",
+                  [
+                    ["준비 → 실행", "스케줄러가 CPU를 배정(디스패치)"],
+                    ["실행 → 대기", "입출력 요청처럼 기다릴 일이 생김"],
+                    ["실행 → 준비", "타이머 인터럽트로 CPU를 내줌"],
+                    ["대기 → 준비", "기다리던 입출력이 끝남"],
+                  ],
+                ],
+              ],
+            },
+            {
+              lead: "CPU가 다른 프로세스로 넘어갈 때 현재 상태를 PCB에 저장하고 다음 프로세스의 상태를 불러오는 일을 문맥 교환이라 합니다.",
+              points: [
+                ["PCB", "프로세스 번호, 상태, 프로그램 카운터, 레지스터, 메모리 정보를 담습니다."],
+                ["스케줄러", "준비 상태의 프로세스 중 다음에 CPU를 쓸 프로세스를 고릅니다."],
+                ["비용", "문맥 교환 중에는 실제 작업을 하지 못하므로 너무 잦으면 성능이 떨어집니다."],
+              ],
+            },
+            {
+              lead: "같은 프로세스의 스레드는 주소 공간을 공유하고, 실행에 꼭 필요한 것만 따로 가집니다.",
+              table: [
+                ["구분", "스레드끼리 공유", "스레드마다 따로"],
+                ["메모리", "코드, 데이터, 힙", "스택"],
+                ["실행 상태", "없음", "프로그램 카운터, 레지스터"],
+                ["운영체제 자원", "열린 파일, 신호 처리기", "없음"],
+              ],
+              points: [["장점", "스레드 전환은 주소 공간을 바꾸지 않아 프로세스 전환보다 가볍습니다."]],
+            },
+            {
+              lead: "둘 다 여러 작업을 다루는 방식이지만, 실제로 같은 순간에 실행되는지가 다릅니다.",
+              points: [
+                ["동시성", "코어 하나가 여러 작업을 빠르게 번갈아 실행해 동시에 진행되는 것처럼 보입니다."],
+                ["병렬성", "여러 코어가 여러 작업을 같은 순간에 실제로 실행합니다."],
+              ],
+            },
+            {
+              lead: "여러 스레드가 공유 변수를 동시에 고치면 실행 순서에 따라 결과가 달라지는 경쟁 상태가 생깁니다.",
+              points: [
+                ["임계 구역", "공유 자원에 접근하는 코드 구간입니다. 한 번에 한 스레드만 들어가야 합니다."],
+                [
+                  "해결 조건",
+                  "세 조건을 모두 만족해야 합니다.",
+                  [
+                    ["상호 배제", "한 스레드가 들어가 있으면 다른 스레드는 못 들어감"],
+                    ["진행", "아무도 없으면 기다리던 스레드가 들어갈 수 있음"],
+                    ["한정 대기", "무한히 기다리는 스레드가 없음"],
+                  ],
+                ],
+              ],
+            },
+            {
+              lead: "강의 끝에 정리한 프로세스와 스레드 비교입니다.",
+              table: [
+                ["항목", "프로세스", "스레드"],
+                ["주소 공간", "독립", "공유"],
+                ["생성과 전환 비용", "큼", "작음"],
+                ["한쪽 오류의 영향", "다른 프로세스에 거의 없음", "같은 프로세스 전체가 멈출 수 있음"],
+              ],
+            },
           ],
         },
         concepts: [
@@ -445,12 +556,50 @@ const courses = {
           ["p.21 ~ 24", "오류 응답과 상태 코드"],
         ],
         summary: {
-          lead: "서버 사이드 렌더링은 서버가 HTML을 완성해 보내 첫 화면이 빨리 보이고 검색 엔진이 내용을 읽기 쉽습니다. API는 자원을 주소로, 동작을 HTTP 메서드로 나타냅니다.",
-          points: [
-            "CSR은 빈 HTML과 스크립트를 받은 뒤 브라우저가 화면을 만듭니다.",
-            "SSR은 요청마다 서버가 HTML을 만들어 첫 화면 표시가 빠릅니다.",
-            "REST 주소는 명사로, 동작은 GET, POST, PUT, DELETE로 구분합니다.",
-            "오류는 상태 코드와 함께 원인을 알 수 있는 본문으로 응답합니다.",
+          lead: "서버 사이드 렌더링(SSR)과 REST API 설계를 다룹니다. HTTP 흐름을 먼저 짚고 렌더링 방식을 비교한 뒤, 자원 중심 API와 오류 응답 규칙으로 이어집니다.",
+          sections: [
+            {
+              lead: "브라우저가 메서드, 주소, 헤더, 본문으로 요청을 보내면 서버는 상태 코드, 헤더, 본문으로 응답합니다.",
+              points: [
+                ["요청 줄", "GET /courses/101 HTTP/1.1"],
+                ["응답 줄", "HTTP/1.1 200 OK"],
+                ["헤더", "Content-Type, Cache-Control처럼 본문을 어떻게 다룰지 알려주는 정보입니다."],
+              ],
+            },
+            {
+              lead: "HTML을 어디서 완성하느냐에 따라 첫 화면 속도와 서버 부담이 달라집니다.",
+              table: [
+                ["구분", "CSR", "SSR"],
+                ["HTML을 완성하는 곳", "브라우저", "서버"],
+                ["첫 화면 표시", "스크립트 실행 뒤라 느림", "빠름"],
+                ["검색 엔진", "내용을 읽기 어려울 수 있음", "읽기 쉬움"],
+                ["서버 부담", "적음", "요청마다 렌더링해 큼"],
+              ],
+              points: [["하이드레이션", "SSR로 받은 HTML에 브라우저가 이벤트와 상태를 연결해 상호작용을 붙입니다."]],
+            },
+            {
+              lead: "주소는 자원을 명사로 나타내고, 동작은 HTTP 메서드로 구분합니다.",
+              table: [
+                ["메서드", "용도", "예시", "멱등"],
+                ["GET", "조회", "GET /courses", "예"],
+                ["POST", "생성", "POST /courses", "아니오"],
+                ["PUT", "전체 수정", "PUT /courses/101", "예"],
+                ["PATCH", "일부 수정", "PATCH /courses/101", "보장 안 됨"],
+                ["DELETE", "삭제", "DELETE /courses/101", "예"],
+              ],
+              points: [["주소 규칙", "동사 대신 복수형 명사를 쓰고 계층은 슬래시로 나타냅니다. 예: /courses/101/students"]],
+            },
+            {
+              lead: "오류는 상태 코드로 종류를 알리고, 본문에 원인을 담아 응답합니다.",
+              points: [
+                ["400", "요청 형식이 잘못됨"],
+                ["401, 403", "인증되지 않음, 권한 없음"],
+                ["404", "자원이 없음"],
+                ["409", "현재 상태와 충돌함. 예: 이미 있는 아이디로 가입"],
+                ["500", "서버 내부 오류"],
+                ["본문", "code, message 같은 필드로 원인을 알 수 있게 응답합니다."],
+              ],
+            },
           ],
         },
         concepts: [
@@ -583,7 +732,27 @@ function renderResult() {
 }
 function renderTab(material) {
   if (currentTab === "summary")
-    return `<p>${material.summary.lead}</p><ul>${material.summary.points.map((point) => `<li>${point}</li>`).join("")}</ul><p class="result-source">원본 ${material.length} 기준 예시 요약입니다.</p>`;
+    return `<p class="summary-lead">${material.summary.lead}</p>${material.summary.sections
+      .map((section, index) => {
+        const [at, title] = material.outline[index];
+        const current = index === activePart;
+        const [head, ...rows] = section.table || [];
+        const table = section.table
+          ? `<div class="summary-table"><table><thead><tr>${head.map((cell) => `<th scope="col">${cell}</th>`).join("")}</tr></thead><tbody>${rows
+              .map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join("")}</tr>`)
+              .join("")}</tbody></table></div>`
+          : "";
+        const points = section.points
+          ? `<ul>${section.points
+              .map(
+                ([label, text, sub]) =>
+                  `<li><strong>${label}</strong>: ${text}${sub ? `<ul>${sub.map(([subLabel, subText]) => `<li><strong>${subLabel}</strong>: ${subText}</li>`).join("")}</ul>` : ""}</li>`,
+              )
+              .join("")}</ul>`
+          : "";
+        return `<section class="summary-section${current ? " current" : ""}" id="summary-${index}" aria-labelledby="summary-title-${index}"><div class="summary-head"><h3 id="summary-title-${index}">${title}</h3><button class="summary-jump" data-jump="${index}" aria-label="원본 ${at} 위치 보기"${current ? ' aria-current="true"' : ""}>${at}</button></div><p>${section.lead}</p>${table}${points}</section>`;
+      })
+      .join("")}<p class="result-source">원본 ${material.length} 기준 예시 요약입니다.</p>`;
   if (currentTab === "concepts")
     return `<dl class="concept-list">${material.concepts
       .map(([term, meaning, at]) => `<div><dt>${term}</dt><dd>${meaning}<span>${at}</span></dd></div>`)
@@ -617,6 +786,21 @@ function refreshTab(focusSelector) {
   $("#result-panel").innerHTML = renderTab(findMaterial());
   if (focusSelector) $(focusSelector)?.focus({ preventScroll: true });
 }
+function markSummarySection(scroll) {
+  if (currentTab !== "summary") return;
+  document.querySelectorAll(".summary-section").forEach((section, index) => {
+    const current = index === activePart;
+    section.classList.toggle("current", current);
+    const jump = section.querySelector("[data-jump]");
+    if (current) jump.setAttribute("aria-current", "true");
+    else jump.removeAttribute("aria-current");
+  });
+  if (!scroll) return;
+  const section = $(`#summary-${activePart}`);
+  const top = section.getBoundingClientRect().top;
+  if (top < 0 || top > window.innerHeight - 120)
+    section.scrollIntoView({ block: "start", behavior: motionReduced() ? "instant" : "smooth" });
+}
 $(".material-panel").addEventListener("click", (event) => {
   const item = event.target.closest("[data-material-item]");
   if (item) {
@@ -625,11 +809,13 @@ $(".material-panel").addEventListener("click", (event) => {
     $(`[data-material-item="${currentMaterial}"]`).focus({ preventScroll: true });
     return;
   }
-  const part = event.target.closest("[data-part]");
+  const part = event.target.closest("[data-part], [data-jump]");
   if (part) {
-    activePart = Number(part.dataset.part);
+    const fromSummary = part.matches("[data-jump]");
+    activePart = Number(fromSummary ? part.dataset.jump : part.dataset.part);
     renderSource();
-    $(`[data-part="${activePart}"]`).focus({ preventScroll: true });
+    markSummarySection(!fromSummary);
+    $(fromSummary ? `[data-jump="${activePart}"]` : `[data-part="${activePart}"]`).focus({ preventScroll: true });
     return;
   }
   const tab = event.target.closest("[data-tab]");
