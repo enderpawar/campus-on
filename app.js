@@ -115,7 +115,7 @@ function renderTasks() {
   const dueToday = tasks.filter(
     (task) => task.date === today && task.kind === "urgent" && !task.done,
   ).length;
-  $(".summary-number.coral").textContent = dueToday;
+  $("#due-count").textContent = dueToday;
   const fragment = document.createDocumentFragment();
   if (!visible.length) {
     const empty = document.createElement("div");

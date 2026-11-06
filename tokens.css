@@ -16,6 +16,9 @@
   --color-alert: #b4503c; --color-alert-wash: #fff0ec;
   --color-cover-database: #2f5d8a; --color-cover-os: #2d6a63; --color-cover-web: #5b4270;
   --color-scrim: rgb(26 41 75 / 0.34);
+  --color-summary-overlay-start: rgb(19 43 100 / 0.92); --color-summary-overlay-end: rgb(15 30 57 / 0.68);
+  --color-summary-blue-start: rgb(40 72 180 / 0.94);
+  --color-course-overlay-start: rgb(16 24 43 / 0.64); --color-course-overlay-end: rgb(16 24 43 / 0.40);
   --shadow-pop: 0 12px 32px rgb(38 55 87 / 0.12); --shadow-panel: 0 18px 48px rgb(36 62 121 / 0.18); --shadow-dialog: 0 24px 64px rgb(29 49 84 / 0.24);
   --shadow-fab: 0 8px 20px rgb(40 76 174 / 0.24); --shadow-fab-hover: 0 10px 24px rgb(40 76 174 / 0.32); --shadow-hint: 0 4px 16px rgb(41 71 119 / 0.06); --shadow-toast: 0 4px 20px rgb(38 59 96 / 0.14);
   --font-display: "Pretendard JP", "Malgun Gothic", "맑은 고딕", sans-serif; --font-body: "Pretendard JP", "Malgun Gothic", "맑은 고딕", sans-serif; --font-outlier: var(--font-body);

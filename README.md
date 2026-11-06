@@ -13,6 +13,13 @@ npx http-server -p 4180 -c-1 .
 # http://127.0.0.1:4180/index.html
 ```
 
+## 팀 공유용 화면 명세
+
+- [화면 갤러리](docs/review/index.html): 화면별 데스크톱·모바일·주요 상태 이미지와 동작 명세를 함께 본다. 설치 없이 파일을 열거나 정적 서버에서 `/docs/review/`로 접속한다.
+- [공유 자료 안내](docs/review/README.md): 화면 목록, PNG 명세 보드, 원본 캡처, 압축파일 사용법.
+- `docs/review/boards/`: 화면별 이미지 명세서 9장. 메신저나 발표 자료에 첨부할 수 있다.
+- `docs/review/captures/`: 최신 목업에서 직접 캡처한 화면·상태 이미지 30장.
+
 ## 문서
 
 | 문서 | 내용 |
@@ -39,10 +46,19 @@ npx http-server -p 4180 -c-1 .
 | `tokens.css` | 색, 글꼴, 글자 크기, 간격, 모서리, 그림자, 움직임 시간 |
 | `base.css` | 공통 기본값(포커스 표시, 동작 줄이기 등) |
 | `app.js` | 예시 데이터와 브라우저 안의 동작 |
-| `assets/` | 캠퍼스 사진, 테크뇽 공식 그림, Pretendard JP 글꼴(SIL OFL) |
+| `assets/` | 캠퍼스·필기·서가 사진, 테크뇽 공식 그림, Pretendard JP 글꼴(SIL OFL) |
 | `docs/screens/` | 화면별 명세와 캡처 |
 | `architecture.png`, `bot-reference.png` | 아키텍처 그림, 테크뇽 BOT 참고 이미지 |
 
 ## 자산 사용
 
 테크뇽은 서울과학기술대학교 공식 캐릭터이고 캠퍼스 사진은 학교 포털 이미지에서 가져왔다. 팀 내부 검토용으로만 쓰며, 외부 공개 전에 학교의 사용 허가를 확인해야 한다.
+
+요약 카드의 필기·서가 사진과 과목 카드의 추상 이미지는 Unsplash 이미지를 WebP로 내려받아 사용한다. 사진은 실제 학교의 학습 공간이 아니며, 과목 커버는 참고 화면의 이미지를 그대로 쓰지 않고 별도의 이미지를 사용한다.
+
+- `assets/summary-writing.webp`: [필기 사진 원본](https://images.unsplash.com/photo-1455390582262-044cdead277a)
+- `assets/summary-library.webp`: [서가 사진 원본](https://images.unsplash.com/photo-1507842217343-583bb7270b66)
+- `assets/course-database.webp`: [블루 파동 추상 이미지](https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4)
+- `assets/course-os.webp`: [진주빛 추상 이미지](https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead)
+- `assets/course-web.webp`: [흐르는 색면 추상 이미지](https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe)
+- 이용 조건: [Unsplash License](https://unsplash.com/license)
