@@ -192,13 +192,15 @@ const views = {
   home: "나의 하루",
   schedule: "나의 일정",
   learning: "나의 학습 자료",
+  material: "나의 학습 자료",
   notices: "학교 소식",
   benefits: "복지·취업정보",
 };
 function setView(view) {
   if (!views[view]) return;
+  const navView = view === "material" ? "learning" : view;
   document.querySelectorAll(".nav-button").forEach((button) => {
-    const active = button.dataset.view === view;
+    const active = button.dataset.view === navView;
     button.classList.toggle("active", active);
     if (active) button.setAttribute("aria-current", "page");
     else button.removeAttribute("aria-current");
@@ -209,6 +211,7 @@ function setView(view) {
   $("#dashboard").classList.toggle("focused", view !== "home");
   $("#page-title").textContent = views[view];
   closePopovers();
+  renderBotMode();
 }
 document.addEventListener("click", (event) => {
   const viewButton = event.target.closest("[data-view]");
@@ -232,16 +235,6 @@ const details = {
     category: "이번 학기 수업",
     title: "고급웹프로그래밍",
     body: '<p>금요일 18:00 ~ 21:50, 미래관 312호</p><p>이번 주에는 서버 사이드 렌더링과 API 설계를 학습합니다. 수업 전 HTTP 요청과 응답 흐름을 복습해 주세요.</p><div class="detail-note">실제 강의실이나 e-class로 연결되지 않는 수업 정보 예시입니다.</div>',
-  },
-  database: {
-    category: "데이터베이스 PDF 핵심 요약",
-    title: "관계형 데이터베이스 설계",
-    body: '<p>정규화는 데이터 중복을 줄이고 삽입, 갱신, 삭제 이상을 방지하는 과정입니다.</p><ul><li>1NF: 각 속성은 원자값을 가집니다.</li><li>2NF: 비주요 속성의 부분 함수 종속을 제거합니다.</li><li>3NF: 비주요 속성의 이행적 종속을 제거합니다.</li><li>BCNF: 모든 비자명한 함수 종속의 결정자가 슈퍼키입니다.</li></ul><div class="detail-note">실제 PDF 분석 결과가 아닌, 학습 요약 화면을 위한 예시입니다.</div>',
-  },
-  os: {
-    category: "운영체제 강의 영상 핵심 요약",
-    title: "프로세스와 스레드",
-    body: '<p>프로세스는 실행 중인 프로그램이며 독립적인 주소 공간을 가집니다. 같은 프로세스의 스레드는 메모리와 자원을 공유합니다.</p><ul><li>00:00 프로세스의 구성과 상태 전이</li><li>08:30 문맥 교환과 스케줄러</li><li>17:40 스레드의 구조와 자원 공유</li><li>25:10 동시성과 병렬성의 차이</li><li>33:00 경쟁 상태와 동기화</li><li>39:00 핵심 개념 정리</li></ul><div class="detail-note">예시 구간 안내입니다. 실제 강의 영상은 연결되지 않았습니다.</div>',
   },
   career: {
     category: "컴퓨터공학과 3학년 맞춤 취업 추천",
@@ -294,6 +287,414 @@ document.addEventListener("click", (event) => {
 });
 $("#close-detail").addEventListener("click", () => detailDialog.close());
 $("#confirm-detail").addEventListener("click", () => detailDialog.close());
+
+const courses = {
+  database: {
+    name: "데이터베이스",
+    meta: ["109351-21001", "김정민", "월(3 ~ 5)"],
+    materials: [
+      {
+        id: "db-10",
+        week: 10,
+        kind: "PDF",
+        title: "관계형 데이터베이스 설계",
+        length: "32쪽",
+        status: "done",
+        outline: [
+          ["p.1 ~ 6", "정규화가 필요한 이유와 이상 현상"],
+          ["p.7 ~ 15", "함수 종속과 추론 규칙"],
+          ["p.16 ~ 26", "1NF부터 BCNF까지"],
+          ["p.27 ~ 32", "수강신청 테이블 정규화 예제"],
+        ],
+        summary: {
+          lead: "정규화는 데이터 중복을 줄이고 삽입, 갱신, 삭제 이상을 방지하는 과정입니다.",
+          points: [
+            "1NF: 각 속성은 원자값을 가집니다.",
+            "2NF: 비주요 속성의 부분 함수 종속을 제거합니다.",
+            "3NF: 비주요 속성의 이행적 종속을 제거합니다.",
+            "BCNF: 모든 비자명한 함수 종속의 결정자가 슈퍼키입니다.",
+          ],
+        },
+        concepts: [
+          ["함수 종속", "X 값이 정해지면 Y 값이 하나로 정해지는 관계(X → Y)", "p.7"],
+          ["부분 함수 종속", "기본키의 일부에만 종속되는 속성이 있는 상태", "p.17"],
+          ["이행적 종속", "X → Y, Y → Z가 성립해 X → Z로 이어지는 종속", "p.20"],
+          ["슈퍼키", "튜플을 유일하게 식별하는 속성의 집합", "p.23"],
+        ],
+        quiz: [
+          {
+            q: "기본키가 {학번, 과목코드}이고 학생 이름이 학번에만 종속될 때 위반하는 정규형은?",
+            options: ["1NF", "2NF", "3NF", "BCNF"],
+            answer: 1,
+            explain: "기본키 일부(학번)에만 종속되는 부분 함수 종속이라 2NF를 위반합니다. (p.17)",
+          },
+          {
+            q: "X → Y, Y → Z가 성립해 X → Z가 되는 종속은?",
+            options: ["완전 함수 종속", "다치 종속", "이행적 종속", "조인 종속"],
+            answer: 2,
+            explain: "이행적 종속이며 3NF에서 제거합니다. (p.20)",
+          },
+          {
+            q: "BCNF의 조건으로 옳은 것은?",
+            options: ["모든 속성이 원자값이다", "모든 결정자가 슈퍼키다", "기본키가 속성 하나다", "외래키가 없다"],
+            answer: 1,
+            explain: "모든 비자명한 함수 종속의 결정자가 슈퍼키여야 합니다. (p.23)",
+          },
+        ],
+        questions: [
+          ["3NF와 BCNF는 어떻게 달라요?", "3NF는 결정자가 슈퍼키가 아니어도 종속되는 쪽이 주요 속성이면 허용합니다. BCNF는 모든 결정자가 슈퍼키여야 해서 더 엄격합니다.", "p.22 ~ 24"],
+          ["정규화 예제를 다시 설명해 줘", "수강신청 테이블을 학생, 과목, 수강 세 테이블로 나눕니다. 학생 이름의 부분 종속은 학생 테이블로, 학과 사무실의 이행적 종속은 학과 테이블로 분리합니다.", "p.27 ~ 32"],
+          ["먼저 복습할 부분은?", "정규형별 조건과 위반 사례 구분이 이번 자료의 중심이에요. p.16 ~ 26의 정규형 비교 표부터 보세요.", "p.16 ~ 26"],
+        ],
+      },
+      {
+        id: "db-11",
+        week: 11,
+        kind: "PDF",
+        title: "트랜잭션과 동시성 제어",
+        length: "28쪽",
+        status: "pending",
+      },
+    ],
+  },
+  os: {
+    name: "운영체제",
+    meta: ["109347-11001", "박서준", "수(1 ~ 3)"],
+    materials: [
+      {
+        id: "os-10",
+        week: 10,
+        kind: "영상",
+        title: "프로세스와 스레드",
+        length: "42:00",
+        status: "done",
+        outline: [
+          ["00:00", "프로세스의 구성과 상태 전이"],
+          ["08:30", "문맥 교환과 스케줄러"],
+          ["17:40", "스레드의 구조와 자원 공유"],
+          ["25:10", "동시성과 병렬성의 차이"],
+          ["33:00", "경쟁 상태와 동기화"],
+          ["39:00", "핵심 개념 정리"],
+        ],
+        summary: {
+          lead: "프로세스는 실행 중인 프로그램이며 독립적인 주소 공간을 가집니다. 같은 프로세스의 스레드는 코드, 데이터, 열린 파일을 공유하고 스택과 레지스터는 따로 가집니다.",
+          points: [
+            "프로세스 상태: 생성, 준비, 실행, 대기, 종료",
+            "문맥 교환 때 PCB에 레지스터와 상태를 저장하고 복원합니다.",
+            "스레드 전환은 주소 공간을 바꾸지 않아 프로세스 전환보다 가볍습니다.",
+            "공유 자원에 동시에 접근하면 경쟁 상태가 생기므로 동기화가 필요합니다.",
+          ],
+        },
+        concepts: [
+          ["PCB", "프로세스의 상태, 레지스터, 메모리 정보를 담은 운영체제의 자료 구조", "08:30"],
+          ["문맥 교환", "실행 중인 프로세스의 상태를 저장하고 다른 프로세스의 상태를 불러오는 일", "08:30"],
+          ["스레드", "프로세스 안에서 실행되는 흐름. 스택과 레지스터만 따로 가짐", "17:40"],
+          ["경쟁 상태", "여러 실행 흐름이 공유 자원에 접근하는 순서에 따라 결과가 달라지는 상황", "33:00"],
+        ],
+        quiz: [
+          {
+            q: "같은 프로세스의 스레드끼리 공유하지 않는 것은?",
+            options: ["코드 영역", "전역 변수", "스택", "열린 파일"],
+            answer: 2,
+            explain: "스택과 레지스터는 스레드마다 따로 가집니다. (17:40)",
+          },
+          {
+            q: "문맥 교환 때 프로세스 상태를 저장하는 곳은?",
+            options: ["PCB", "TLB", "페이지 테이블", "캐시"],
+            answer: 0,
+            explain: "레지스터와 상태 정보는 PCB에 저장했다가 복원합니다. (08:30)",
+          },
+          {
+            q: "실행 순서에 따라 결과가 달라지는 상황을 막으려면?",
+            options: ["스레드 수 줄이기", "동기화", "문맥 교환 늘리기", "우선순위 높이기"],
+            answer: 1,
+            explain: "임계 구역에 한 흐름만 들어가도록 동기화해야 합니다. (33:00)",
+          },
+        ],
+        questions: [
+          ["스레드 전환이 왜 더 가벼워요?", "같은 주소 공간을 쓰기 때문에 페이지 테이블과 캐시를 바꿀 필요가 적습니다. 스택 포인터와 레지스터만 바꾸면 됩니다.", "17:40 ~ 25:10"],
+          ["동시성과 병렬성 차이는?", "동시성은 하나의 코어에서 여러 작업을 번갈아 실행하는 것이고, 병렬성은 여러 코어에서 실제로 같은 시각에 실행하는 것입니다.", "25:10 ~ 33:00"],
+          ["10분 안에 복습하려면 어디부터?", "39:00의 핵심 개념 정리를 먼저 보고, 헷갈리는 부분만 해당 구간으로 돌아가세요.", "39:00 ~ 42:00"],
+        ],
+      },
+      {
+        id: "os-9",
+        week: 9,
+        kind: "영상",
+        title: "CPU 스케줄링",
+        length: "45:00",
+        status: "failed",
+      },
+    ],
+  },
+  web: {
+    name: "고급웹프로그래밍",
+    meta: ["109412-31001", "이도현", "금(10 ~ 13)"],
+    materials: [
+      {
+        id: "web-10",
+        week: 10,
+        kind: "PDF",
+        title: "서버 사이드 렌더링과 API 설계",
+        length: "24쪽",
+        status: "done",
+        outline: [
+          ["p.1 ~ 5", "HTTP 요청과 응답 흐름"],
+          ["p.6 ~ 13", "CSR과 SSR 비교"],
+          ["p.14 ~ 20", "REST API 자원과 메서드 설계"],
+          ["p.21 ~ 24", "오류 응답과 상태 코드"],
+        ],
+        summary: {
+          lead: "서버 사이드 렌더링은 서버가 HTML을 완성해 보내 첫 화면이 빨리 보이고 검색 엔진이 내용을 읽기 쉽습니다. API는 자원을 주소로, 동작을 HTTP 메서드로 나타냅니다.",
+          points: [
+            "CSR은 빈 HTML과 스크립트를 받은 뒤 브라우저가 화면을 만듭니다.",
+            "SSR은 요청마다 서버가 HTML을 만들어 첫 화면 표시가 빠릅니다.",
+            "REST 주소는 명사로, 동작은 GET, POST, PUT, DELETE로 구분합니다.",
+            "오류는 상태 코드와 함께 원인을 알 수 있는 본문으로 응답합니다.",
+          ],
+        },
+        concepts: [
+          ["SSR", "서버가 요청마다 HTML을 완성해 보내는 렌더링 방식", "p.6"],
+          ["하이드레이션", "서버가 보낸 HTML에 브라우저가 이벤트와 상태를 연결하는 과정", "p.11"],
+          ["멱등성", "같은 요청을 여러 번 보내도 결과가 같은 성질. GET, PUT, DELETE가 해당", "p.17"],
+          ["404와 409", "자원이 없음(404)과 현재 상태와 충돌함(409)", "p.22"],
+        ],
+        quiz: [
+          {
+            q: "첫 화면이 가장 빨리 보이는 방식은?",
+            options: ["CSR", "SSR", "둘 다 같음", "SPA"],
+            answer: 1,
+            explain: "SSR은 완성된 HTML을 바로 받아 표시합니다. (p.8)",
+          },
+          {
+            q: "멱등하지 않은 HTTP 메서드는?",
+            options: ["GET", "PUT", "DELETE", "POST"],
+            answer: 3,
+            explain: "POST는 보낼 때마다 새 자원을 만들 수 있어 멱등하지 않습니다. (p.17)",
+          },
+          {
+            q: "이미 있는 아이디로 회원가입할 때 알맞은 상태 코드는?",
+            options: ["200", "404", "409", "500"],
+            answer: 2,
+            explain: "현재 자원 상태와 충돌하므로 409 Conflict가 알맞습니다. (p.22)",
+          },
+        ],
+        questions: [
+          ["SSR은 언제 쓰면 좋아요?", "첫 화면 속도와 검색 노출이 중요한 공개 페이지에 알맞습니다. 로그인 뒤 대시보드처럼 상호작용이 많은 화면은 CSR도 충분합니다.", "p.6 ~ 13"],
+          ["PUT과 PATCH 차이는?", "PUT은 자원 전체를 바꾸고 PATCH는 일부만 바꿉니다. 일부 필드만 고칠 때는 PATCH가 알맞습니다.", "p.18"],
+          ["이번 주 과제와 겹치는 부분은?", "REST API 설계 과제와 겹치는 부분은 p.14 ~ 20의 자원 이름과 메서드 표입니다.", "p.14 ~ 20"],
+        ],
+      },
+    ],
+  },
+};
+const materialStatus = { done: "요약 완료", pending: "요약 중", failed: "요약 실패" };
+const materialTabs = [
+  ["summary", "요약"],
+  ["concepts", "핵심 개념"],
+  ["quiz", "퀴즈"],
+  ["cards", "플래시카드"],
+];
+let currentCourse = "database",
+  currentMaterial = "db-10",
+  currentTab = "summary",
+  activePart = 0,
+  quizAnswers = {},
+  cardIndex = 0,
+  cardFlipped = false,
+  studyThread = [];
+function findMaterial() {
+  return courses[currentCourse].materials.find(
+    (material) => material.id === currentMaterial,
+  );
+}
+function materialLabel(material) {
+  return `${courses[currentCourse].name} ${material.week}주차 ${material.kind}`;
+}
+function selectMaterial(id) {
+  currentMaterial = id;
+  currentTab = "summary";
+  activePart = 0;
+  quizAnswers = {};
+  cardIndex = 0;
+  cardFlipped = false;
+  studyThread = [];
+}
+function openMaterial(courseKey, materialId) {
+  if (!courses[courseKey]) return;
+  currentCourse = courseKey;
+  selectMaterial(materialId || courses[courseKey].materials[0].id);
+  setView("material");
+  renderMaterial();
+  window.scrollTo({ top: 0, behavior: motionReduced() ? "instant" : "smooth" });
+}
+function renderMaterial() {
+  const course = courses[currentCourse];
+  $("#material-title").textContent = course.name;
+  $("#material-course-meta").innerHTML = course.meta
+    .map((part) => `<span>${part}</span>`)
+    .join("");
+  $("#material-list").innerHTML = course.materials
+    .map((material) => {
+      const selected = material.id === currentMaterial;
+      return `<button class="material-item${selected ? " selected" : ""}" data-material-item="${material.id}"${selected ? ' aria-current="true"' : ""}><span class="material-week">${material.week}주차 ${material.kind}</span><strong>${material.title}</strong><span class="material-status ${material.status}">${materialStatus[material.status]}</span></button>`;
+    })
+    .join("");
+  renderSource();
+  renderResult();
+  renderBotMode();
+}
+function renderSource() {
+  const material = findMaterial();
+  const video = material.kind === "영상";
+  const position = material.outline
+    ? `${video ? "재생 위치" : "보는 위치"} ${material.outline[activePart][0]}${video ? ` / ${material.length}` : ` | 전체 ${material.length}`}`
+    : `전체 ${material.length}`;
+  const icon = video
+    ? '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="16" cy="16" r="13"/><path d="m13 10.5 8 5.5-8 5.5z" fill="currentColor"/></svg>'
+    : '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 3.5h11l6 6v19H8z"/><path d="M19 3.5v6h6M12 16h9M12 21h9"/></svg>';
+  const outline = material.outline
+    ? `<h3>${video ? "자막 구간" : "쪽별 내용"}</h3><ol class="source-outline">${material.outline
+        .map(
+          ([at, label], index) =>
+            `<li><button data-part="${index}"${index === activePart ? ' aria-current="true"' : ""}><span>${at}</span>${label}</button></li>`,
+        )
+        .join("")}</ol>`
+    : "";
+  $("#material-source").innerHTML = `<div class="source-frame${video ? " video" : ""}">${icon}<strong>${material.title}</strong><span>${position}</span></div><a class="source-link" href="https://eclass.seoultech.ac.kr/ilos/main/main_form.acl" target="_blank" rel="noopener noreferrer">e-class에서 원본 열기<span aria-hidden="true">↗</span></a>${outline}`;
+}
+function renderResult() {
+  const material = findMaterial();
+  const result = $("#material-result");
+  if (material.status === "pending") {
+    result.innerHTML = `<div class="result-state"><strong>요약을 만드는 중이에요</strong><p>e-class에 올라온 ${material.length} 자료입니다. 요약이 끝나면 알림으로 알려드려요.</p></div>`;
+    return;
+  }
+  if (material.status === "failed") {
+    result.innerHTML = `<div class="result-state failed"><strong>요약을 만들지 못했어요</strong><p>강의 영상의 음성을 인식하지 못했습니다. 원본은 e-class에서 볼 수 있어요.</p><button class="small-button" data-retry="${material.id}">다시 요약하기</button></div>`;
+    return;
+  }
+  result.innerHTML = `<div class="filter-tabs result-tabs" role="tablist" aria-label="학습 도구">${materialTabs
+    .map(([key, label]) => {
+      const selected = key === currentTab;
+      return `<button role="tab" id="tab-${key}" class="${selected ? "selected" : ""}" aria-selected="${selected}" aria-controls="result-panel" tabindex="${selected ? 0 : -1}" data-tab="${key}">${label}</button>`;
+    })
+    .join("")}</div><div class="result-panel" id="result-panel" role="tabpanel" aria-labelledby="tab-${currentTab}" tabindex="0">${renderTab(material)}</div><button class="material-ask" data-ask><img src="assets/technyong-front.webp" alt="" width="20" height="28">이 자료로 테크뇽에게 질문하기</button>`;
+}
+function renderTab(material) {
+  if (currentTab === "summary")
+    return `<p>${material.summary.lead}</p><ul>${material.summary.points.map((point) => `<li>${point}</li>`).join("")}</ul><p class="result-source">원본 ${material.length} 기준 예시 요약입니다.</p>`;
+  if (currentTab === "concepts")
+    return `<dl class="concept-list">${material.concepts
+      .map(([term, meaning, at]) => `<div><dt>${term}</dt><dd>${meaning}<span>${at}</span></dd></div>`)
+      .join("")}</dl>`;
+  if (currentTab === "quiz") {
+    const answered = Object.keys(quizAnswers).length;
+    const correct = material.quiz.filter((item, index) => quizAnswers[index] === item.answer).length;
+    return `<div class="quiz-progress"><span>${material.quiz.length}문제 중 ${answered}문제 풀었어요${answered ? ` | 맞힌 문제 ${correct}` : ""}</span>${answered ? '<button class="text-button" data-quiz-reset>다시 풀기</button>' : ""}</div><ol class="quiz-list">${material.quiz
+      .map((item, index) => {
+        const chosen = quizAnswers[index];
+        const done = chosen !== undefined;
+        const options = item.options
+          .map((option, choice) => {
+            let state = "";
+            if (done && choice === item.answer) state = "correct";
+            else if (done && choice === chosen) state = "wrong";
+            return `<button class="${state}" data-quiz="${index}" data-choice="${choice}"${done ? ' aria-disabled="true"' : ""}>${option}</button>`;
+          })
+          .join("");
+        const explain = done
+          ? `<p class="quiz-explain ${chosen === item.answer ? "correct" : "wrong"}" id="quiz-explain-${index}" tabindex="-1"><strong>${chosen === item.answer ? "정답" : "오답"}</strong>${item.explain}</p>`
+          : "";
+        return `<li><p class="quiz-question">${index + 1}. ${item.q}</p><div class="quiz-options">${options}</div>${explain}</li>`;
+      })
+      .join("")}</ol>`;
+  }
+  const [term, meaning, at] = material.concepts[cardIndex];
+  return `<div class="flashcard${cardFlipped ? " back" : ""}"><span>${cardIndex + 1} / ${material.concepts.length}</span><strong>${cardFlipped ? meaning : term}</strong><small>${cardFlipped ? `뜻 | ${at}` : "용어"}</small></div><div class="flashcard-actions"><button class="small-button" data-card="prev"${cardIndex === 0 ? " disabled" : ""}>이전</button><button class="primary-button" data-card="flip">${cardFlipped ? "용어 보기" : "뜻 보기"}</button><button class="small-button" data-card="next"${cardIndex === material.concepts.length - 1 ? " disabled" : ""}>다음</button></div>`;
+}
+function refreshTab(focusSelector) {
+  $("#result-panel").innerHTML = renderTab(findMaterial());
+  if (focusSelector) $(focusSelector)?.focus({ preventScroll: true });
+}
+$(".material-panel").addEventListener("click", (event) => {
+  const item = event.target.closest("[data-material-item]");
+  if (item) {
+    selectMaterial(item.dataset.materialItem);
+    renderMaterial();
+    $(`[data-material-item="${currentMaterial}"]`).focus({ preventScroll: true });
+    return;
+  }
+  const part = event.target.closest("[data-part]");
+  if (part) {
+    activePart = Number(part.dataset.part);
+    renderSource();
+    $(`[data-part="${activePart}"]`).focus({ preventScroll: true });
+    return;
+  }
+  const tab = event.target.closest("[data-tab]");
+  if (tab) {
+    currentTab = tab.dataset.tab;
+    renderResult();
+    $(`#tab-${currentTab}`).focus({ preventScroll: true });
+    return;
+  }
+  const option = event.target.closest("[data-quiz]");
+  if (option) {
+    const index = Number(option.dataset.quiz);
+    if (quizAnswers[index] !== undefined) return;
+    quizAnswers[index] = Number(option.dataset.choice);
+    refreshTab(`#quiz-explain-${index}`);
+    return;
+  }
+  if (event.target.closest("[data-quiz-reset]")) {
+    quizAnswers = {};
+    refreshTab('[data-quiz="0"]');
+    return;
+  }
+  const card = event.target.closest("[data-card]");
+  if (card) {
+    const action = card.dataset.card;
+    if (action === "flip") cardFlipped = !cardFlipped;
+    else {
+      cardIndex += action === "next" ? 1 : -1;
+      cardFlipped = false;
+    }
+    refreshTab();
+    const target = $(`[data-card="${action}"]`);
+    (target.disabled ? $('[data-card="flip"]') : target).focus({ preventScroll: true });
+    return;
+  }
+  const retry = event.target.closest("[data-retry]");
+  if (retry) {
+    findMaterial().status = "pending";
+    renderMaterial();
+    $(`[data-material-item="${currentMaterial}"]`).focus({ preventScroll: true });
+    showToast("다시 요약을 요청했어요. 끝나면 알림으로 알려드려요.");
+    return;
+  }
+  if (event.target.closest("[data-ask]")) toggleBot(true);
+});
+$(".material-panel").addEventListener("keydown", (event) => {
+  const tab = event.target.closest('[role="tab"]');
+  if (!tab || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+  const keys = materialTabs.map(([key]) => key);
+  const index = keys.indexOf(currentTab);
+  const next = {
+    ArrowLeft: (index + keys.length - 1) % keys.length,
+    ArrowRight: (index + 1) % keys.length,
+    Home: 0,
+    End: keys.length - 1,
+  }[event.key];
+  event.preventDefault();
+  currentTab = keys[next];
+  renderResult();
+  $(`#tab-${currentTab}`).focus();
+});
+document.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-course]");
+  if (button) openMaterial(button.dataset.course, button.dataset.material);
+});
 const notices = [
   {
     category: "학사",
@@ -445,10 +846,7 @@ function toggleBot(open, restoreFocus = true) {
   clearTimeout(closeTimer);
   botOpen = open;
   botFab.setAttribute("aria-expanded", String(open));
-  botFab.setAttribute(
-    "aria-label",
-    open ? "테크뇽 추천 닫기" : "테크뇽 추천 열기",
-  );
+  updateFabLabel();
   botPanel.classList.remove("opening", "closing");
   if (open) {
     botPanel.hidden = false;
@@ -470,6 +868,85 @@ function toggleBot(open, restoreFocus = true) {
     }
   }
 }
+function studyMode() {
+  return !$(".material-panel").hidden;
+}
+function updateFabLabel() {
+  botFab.setAttribute(
+    "aria-label",
+    botOpen ? "테크뇽 닫기" : studyMode() ? "테크뇽에게 질문하기" : "테크뇽 추천 열기",
+  );
+}
+function renderBotMode() {
+  const study = studyMode();
+  $("#bot-recommend").hidden = study;
+  $("#bot-study").hidden = !study;
+  $("#bot-role").textContent = study ? "학습 도우미" : "학생 프로그램 추천";
+  botPanel.setAttribute("aria-label", study ? "테크뇽 학습 도우미" : "테크뇽 프로그램 추천");
+  $("#bot-footer-label").textContent = study ? "답변 근거" : "추천 기준";
+  updateFabLabel();
+  if (!study) {
+    $("#bot-footer-value").textContent = "학과, 학년, 신청 기간";
+    return;
+  }
+  const material = findMaterial();
+  const ready = material.status === "done";
+  $("#study-context-title").textContent = `${materialLabel(material)} | ${material.title}`;
+  $("#study-intro").textContent = ready
+    ? "이 자료의 요약과 원본을 근거로 답해요."
+    : "요약이 끝나면 이 자료로 질문할 수 있어요.";
+  $("#bot-footer-value").textContent = ready
+    ? `${materialLabel(material)} | ${material.length}`
+    : "요약이 끝난 뒤 표시돼요";
+  $("#study-input").disabled = !ready;
+  $("#study-ask button").disabled = !ready;
+  renderStudy();
+}
+function renderStudy() {
+  const material = findMaterial();
+  const thread = $("#study-thread");
+  thread.replaceChildren(
+    ...studyThread.map(([who, text, cite]) => {
+      const bubble = document.createElement("p");
+      bubble.className = who === "q" ? "study-q" : "study-a";
+      bubble.textContent = text;
+      if (cite) {
+        const source = document.createElement("small");
+        source.textContent = `근거 ${cite}`;
+        bubble.append(source);
+      }
+      return bubble;
+    }),
+  );
+  const asked = new Set(studyThread.map(([, text]) => text));
+  $("#study-suggestions").innerHTML = (material.questions || [])
+    .map(([question], index) =>
+      asked.has(question) ? "" : `<button data-question="${index}">${question}</button>`,
+    )
+    .join("");
+}
+function askStudy(question, answer, cite) {
+  studyThread.push(["q", question], ["a", answer, cite]);
+  renderStudy();
+  botPanel.scrollTo({ top: botPanel.scrollHeight, behavior: motionReduced() ? "instant" : "smooth" });
+}
+$("#study-suggestions").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-question]");
+  if (!button) return;
+  const [question, answer, cite] = findMaterial().questions[Number(button.dataset.question)];
+  askStudy(question, answer, cite);
+  $("#study-input").focus({ preventScroll: true });
+});
+$("#study-ask").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const input = $("#study-input");
+  const question = input.value.trim();
+  if (!question) return;
+  const match = findMaterial().questions.find(([text]) => text === question);
+  if (match) askStudy(...match);
+  else askStudy(question, "목업에서는 위에 있는 예시 질문에만 답할 수 있어요.");
+  input.value = "";
+});
 botFab.addEventListener("click", () => toggleBot(!botOpen));
 $("#close-bot").addEventListener("click", () => toggleBot(false));
 $("#open-recommendations").addEventListener("click", () => toggleBot(true));
