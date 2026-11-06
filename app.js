@@ -298,13 +298,27 @@ const courses = {
         week: 10,
         kind: "PDF",
         title: "관계형 데이터베이스 설계",
-        length: "32쪽",
+        length: "12쪽",
         status: "done",
         outline: [
-          ["p.1 ~ 6", "정규화가 필요한 이유와 이상 현상"],
-          ["p.7 ~ 15", "함수 종속과 추론 규칙"],
-          ["p.16 ~ 26", "1NF부터 BCNF까지"],
-          ["p.27 ~ 32", "수강신청 테이블 정규화 예제"],
+          ["p.1 ~ 3", "정규화가 필요한 이유와 이상 현상"],
+          ["p.4 ~ 6", "함수 종속과 추론 규칙"],
+          ["p.7 ~ 9", "1NF부터 BCNF까지"],
+          ["p.10 ~ 12", "수강신청 테이블 정규화 예제"],
+        ],
+        pages: [
+          { cover: true, title: "관계형 데이터베이스 설계", lines: ["데이터베이스 10주차 | 김정민"] },
+          { title: "정규화가 필요한 이유", lines: ["한 테이블에 여러 주제를 담으면 같은 값이 반복됨", "중복은 저장 공간 낭비와 불일치의 원인", "정규화: 테이블을 나눠 중복을 줄이는 과정"] },
+          { title: "이상 현상", lines: ["삽입 이상: 원하지 않는 데이터까지 함께 넣어야 함", "갱신 이상: 중복 값의 일부만 바뀌어 불일치", "삭제 이상: 필요한 데이터까지 함께 지워짐"] },
+          { title: "함수 종속", lines: ["X 값이 Y 값을 하나로 정하면 X → Y", "X는 결정자, Y는 종속자", "예: 학번 → 이름"] },
+          { title: "완전 · 부분 함수 종속", lines: ["완전: 기본키 전체에 종속 ({학번, 과목코드} → 성적)", "부분: 기본키 일부에만 종속 (학번 → 이름)", "부분 함수 종속은 2NF에서 제거"] },
+          { title: "이행적 종속과 암스트롱 공리", lines: ["이행적 종속: X → Y, Y → Z이면 X → Z", "반사: Y가 X의 부분집합이면 X → Y", "첨가: X → Y이면 XZ → YZ", "이행: X → Y, Y → Z이면 X → Z"] },
+          { title: "제1정규형 (1NF)", lines: ["모든 속성 값이 원자값", "반복 그룹, 한 칸에 여러 값 금지", "예: 전화번호 여러 개를 한 칸에 넣지 않음"] },
+          { title: "제2 · 제3정규형", lines: ["2NF: 1NF이고 부분 함수 종속 없음", "3NF: 2NF이고 이행적 종속 없음", "기본키가 아닌 속성끼리의 종속을 분리"] },
+          { title: "BCNF", lines: ["모든 결정자가 슈퍼키", "3NF와 차이: 후보키가 여러 개이고 서로 겹칠 때", "대부분의 3NF 테이블은 BCNF도 만족"] },
+          { title: "예제: 수강신청 테이블", lines: ["수강신청(학번, 이름, 학과, 학과 사무실, 과목코드, 과목명, 성적)", "기본키: {학번, 과목코드}", "이름·학과는 학번에만, 과목명은 과목코드에만 종속"] },
+          { title: "2NF로 분해", lines: ["학생(학번, 이름, 학과, 학과 사무실)", "과목(과목코드, 과목명)", "수강(학번, 과목코드, 성적)"] },
+          { title: "3NF로 분해", lines: ["학번 → 학과 → 학과 사무실 종속을 분리", "학생(학번, 이름, 학과), 학과(학과, 학과 사무실)", "과목(과목코드, 과목명), 수강(학번, 과목코드, 성적)"] },
         ],
         summary: {
           lead: "정규화는 테이블을 나눠 데이터 중복을 줄이고 삽입, 갱신, 삭제 이상을 막는 과정입니다. 이번 자료는 이상 현상, 함수 종속, 정규형, 예제 순서로 설명합니다.",
@@ -367,35 +381,35 @@ const courses = {
           ],
         },
         concepts: [
-          ["함수 종속", "X 값이 정해지면 Y 값이 하나로 정해지는 관계(X → Y)", "p.7"],
-          ["부분 함수 종속", "기본키의 일부에만 종속되는 속성이 있는 상태", "p.17"],
-          ["이행적 종속", "X → Y, Y → Z가 성립해 X → Z로 이어지는 종속", "p.20"],
-          ["슈퍼키", "튜플을 유일하게 식별하는 속성의 집합", "p.23"],
+          ["함수 종속", "X 값이 정해지면 Y 값이 하나로 정해지는 관계(X → Y)", "p.4"],
+          ["부분 함수 종속", "기본키의 일부에만 종속되는 속성이 있는 상태", "p.5"],
+          ["이행적 종속", "X → Y, Y → Z가 성립해 X → Z로 이어지는 종속", "p.6"],
+          ["슈퍼키", "튜플을 유일하게 식별하는 속성의 집합", "p.9"],
         ],
         quiz: [
           {
             q: "기본키가 {학번, 과목코드}이고 학생 이름이 학번에만 종속될 때 위반하는 정규형은?",
             options: ["1NF", "2NF", "3NF", "BCNF"],
             answer: 1,
-            explain: "기본키 일부(학번)에만 종속되는 부분 함수 종속이라 2NF를 위반합니다. (p.17)",
+            explain: "기본키 일부(학번)에만 종속되는 부분 함수 종속이라 2NF를 위반합니다. (p.5)",
           },
           {
             q: "X → Y, Y → Z가 성립해 X → Z가 되는 종속은?",
             options: ["완전 함수 종속", "다치 종속", "이행적 종속", "조인 종속"],
             answer: 2,
-            explain: "이행적 종속이며 3NF에서 제거합니다. (p.20)",
+            explain: "이행적 종속이며 3NF에서 제거합니다. (p.6)",
           },
           {
             q: "BCNF의 조건으로 옳은 것은?",
             options: ["모든 속성이 원자값이다", "모든 결정자가 슈퍼키다", "기본키가 속성 하나다", "외래키가 없다"],
             answer: 1,
-            explain: "모든 비자명한 함수 종속의 결정자가 슈퍼키여야 합니다. (p.23)",
+            explain: "모든 비자명한 함수 종속의 결정자가 슈퍼키여야 합니다. (p.9)",
           },
         ],
         questions: [
-          ["3NF와 BCNF는 어떻게 달라요?", "3NF는 결정자가 슈퍼키가 아니어도 종속되는 쪽이 주요 속성이면 허용합니다. BCNF는 모든 결정자가 슈퍼키여야 해서 더 엄격합니다.", "p.22 ~ 24"],
-          ["정규화 예제를 다시 설명해 줘", "수강신청 테이블을 학생, 과목, 수강 세 테이블로 나눕니다. 학생 이름의 부분 종속은 학생 테이블로, 학과 사무실의 이행적 종속은 학과 테이블로 분리합니다.", "p.27 ~ 32"],
-          ["먼저 복습할 부분은?", "정규형별 조건과 위반 사례 구분이 이번 자료의 중심이에요. p.16 ~ 26의 정규형 비교 표부터 보세요.", "p.16 ~ 26"],
+          ["3NF와 BCNF는 어떻게 달라요?", "3NF는 결정자가 슈퍼키가 아니어도 종속되는 쪽이 주요 속성이면 허용합니다. BCNF는 모든 결정자가 슈퍼키여야 해서 더 엄격합니다.", "p.8 ~ 9"],
+          ["정규화 예제를 다시 설명해 줘", "수강신청 테이블을 학생, 과목, 수강 세 테이블로 나눕니다. 학생 이름의 부분 종속은 학생 테이블로, 학과 사무실의 이행적 종속은 학과 테이블로 분리합니다.", "p.10 ~ 12"],
+          ["먼저 복습할 부분은?", "정규형별 조건과 위반 사례 구분이 이번 자료의 중심이에요. p.7 ~ 9의 정규형 설명부터 보세요.", "p.7 ~ 9"],
         ],
       },
       {
@@ -547,13 +561,25 @@ const courses = {
         week: 10,
         kind: "PDF",
         title: "서버 사이드 렌더링과 API 설계",
-        length: "24쪽",
+        length: "10쪽",
         status: "done",
         outline: [
-          ["p.1 ~ 5", "HTTP 요청과 응답 흐름"],
-          ["p.6 ~ 13", "CSR과 SSR 비교"],
-          ["p.14 ~ 20", "REST API 자원과 메서드 설계"],
-          ["p.21 ~ 24", "오류 응답과 상태 코드"],
+          ["p.1 ~ 3", "HTTP 요청과 응답 흐름"],
+          ["p.4 ~ 5", "CSR과 SSR 비교"],
+          ["p.6 ~ 8", "REST API 자원과 메서드 설계"],
+          ["p.9 ~ 10", "오류 응답과 상태 코드"],
+        ],
+        pages: [
+          { cover: true, title: "서버 사이드 렌더링과 API 설계", lines: ["고급웹프로그래밍 10주차 | 이도현"] },
+          { title: "HTTP 요청과 응답", lines: ["브라우저 → 서버: 메서드, 주소, 헤더, 본문", "서버 → 브라우저: 상태 코드, 헤더, 본문", "요청 하나에 응답 하나"] },
+          { title: "메시지 구조", lines: ["요청 줄: GET /courses/101 HTTP/1.1", "응답 줄: HTTP/1.1 200 OK", "헤더: Content-Type, Cache-Control"] },
+          { title: "CSR과 SSR", lines: ["CSR: 브라우저가 스크립트로 HTML을 완성", "SSR: 서버가 요청마다 HTML을 완성", "SSR은 첫 화면이 빠르고 검색 엔진이 읽기 쉬움"] },
+          { title: "하이드레이션", lines: ["SSR로 받은 HTML에 이벤트와 상태를 연결", "첫 화면은 서버, 상호작용은 브라우저", "대가: 요청마다 렌더링하는 서버 부담"] },
+          { title: "REST 자원 설계", lines: ["주소는 자원을 나타내는 명사", "복수형 사용: /courses", "계층은 슬래시: /courses/101/students"] },
+          { title: "HTTP 메서드와 멱등성", lines: ["GET 조회, POST 생성, PUT 전체 수정, DELETE 삭제", "멱등: 여러 번 보내도 결과가 같음", "GET, PUT, DELETE는 멱등, POST는 아님"] },
+          { title: "PUT과 PATCH", lines: ["PUT: 자원 전체를 바꿈", "PATCH: 일부 필드만 바꿈", "PATCH는 멱등성이 보장되지 않음"] },
+          { title: "상태 코드", lines: ["400 잘못된 요청, 401 인증 필요, 403 권한 없음", "404 자원 없음, 409 상태 충돌", "500 서버 내부 오류"] },
+          { title: "오류 응답 본문", lines: ["상태 코드와 함께 원인을 본문에 담음", "예: code DUPLICATE_ID", "예: message 이미 사용 중인 아이디입니다."] },
         ],
         summary: {
           lead: "서버 사이드 렌더링(SSR)과 REST API 설계를 다룹니다. HTTP 흐름을 먼저 짚고 렌더링 방식을 비교한 뒤, 자원 중심 API와 오류 응답 규칙으로 이어집니다.",
@@ -603,35 +629,35 @@ const courses = {
           ],
         },
         concepts: [
-          ["SSR", "서버가 요청마다 HTML을 완성해 보내는 렌더링 방식", "p.6"],
-          ["하이드레이션", "서버가 보낸 HTML에 브라우저가 이벤트와 상태를 연결하는 과정", "p.11"],
-          ["멱등성", "같은 요청을 여러 번 보내도 결과가 같은 성질. GET, PUT, DELETE가 해당", "p.17"],
-          ["404와 409", "자원이 없음(404)과 현재 상태와 충돌함(409)", "p.22"],
+          ["SSR", "서버가 요청마다 HTML을 완성해 보내는 렌더링 방식", "p.4"],
+          ["하이드레이션", "서버가 보낸 HTML에 브라우저가 이벤트와 상태를 연결하는 과정", "p.5"],
+          ["멱등성", "같은 요청을 여러 번 보내도 결과가 같은 성질. GET, PUT, DELETE가 해당", "p.7"],
+          ["404와 409", "자원이 없음(404)과 현재 상태와 충돌함(409)", "p.9"],
         ],
         quiz: [
           {
             q: "첫 화면이 가장 빨리 보이는 방식은?",
             options: ["CSR", "SSR", "둘 다 같음", "SPA"],
             answer: 1,
-            explain: "SSR은 완성된 HTML을 바로 받아 표시합니다. (p.8)",
+            explain: "SSR은 완성된 HTML을 바로 받아 표시합니다. (p.4)",
           },
           {
             q: "멱등하지 않은 HTTP 메서드는?",
             options: ["GET", "PUT", "DELETE", "POST"],
             answer: 3,
-            explain: "POST는 보낼 때마다 새 자원을 만들 수 있어 멱등하지 않습니다. (p.17)",
+            explain: "POST는 보낼 때마다 새 자원을 만들 수 있어 멱등하지 않습니다. (p.7)",
           },
           {
             q: "이미 있는 아이디로 회원가입할 때 알맞은 상태 코드는?",
             options: ["200", "404", "409", "500"],
             answer: 2,
-            explain: "현재 자원 상태와 충돌하므로 409 Conflict가 알맞습니다. (p.22)",
+            explain: "현재 자원 상태와 충돌하므로 409 Conflict가 알맞습니다. (p.9)",
           },
         ],
         questions: [
-          ["SSR은 언제 쓰면 좋아요?", "첫 화면 속도와 검색 노출이 중요한 공개 페이지에 알맞습니다. 로그인 뒤 대시보드처럼 상호작용이 많은 화면은 CSR도 충분합니다.", "p.6 ~ 13"],
-          ["PUT과 PATCH 차이는?", "PUT은 자원 전체를 바꾸고 PATCH는 일부만 바꿉니다. 일부 필드만 고칠 때는 PATCH가 알맞습니다.", "p.18"],
-          ["이번 주 과제와 겹치는 부분은?", "REST API 설계 과제와 겹치는 부분은 p.14 ~ 20의 자원 이름과 메서드 표입니다.", "p.14 ~ 20"],
+          ["SSR은 언제 쓰면 좋아요?", "첫 화면 속도와 검색 노출이 중요한 공개 페이지에 알맞습니다. 로그인 뒤 대시보드처럼 상호작용이 많은 화면은 CSR도 충분합니다.", "p.4 ~ 5"],
+          ["PUT과 PATCH 차이는?", "PUT은 자원 전체를 바꾸고 PATCH는 일부만 바꿉니다. 일부 필드만 고칠 때는 PATCH가 알맞습니다.", "p.8"],
+          ["이번 주 과제와 겹치는 부분은?", "REST API 설계 과제와 겹치는 부분은 p.6 ~ 8의 자원 이름과 메서드 설명입니다.", "p.6 ~ 8"],
         ],
       },
     ],
@@ -644,14 +670,19 @@ const materialTabs = [
   ["quiz", "퀴즈"],
   ["cards", "플래시카드"],
 ];
+const zoomSteps = [60, 80, 100];
 let currentCourse = "database",
   currentMaterial = "db-10",
   currentTab = "summary",
   activePart = 0,
+  currentPage = 1,
+  zoomIndex = zoomSteps.length - 1,
   quizAnswers = {},
   cardIndex = 0,
   cardFlipped = false,
-  studyThread = [];
+  studyThread = [],
+  pageFrame,
+  pageLockUntil = 0;
 function findMaterial() {
   return courses[currentCourse].materials.find(
     (material) => material.id === currentMaterial,
@@ -664,6 +695,7 @@ function selectMaterial(id) {
   currentMaterial = id;
   currentTab = "summary";
   activePart = 0;
+  currentPage = 1;
   quizAnswers = {};
   cardIndex = 0;
   cardFlipped = false;
@@ -683,34 +715,99 @@ function renderMaterial() {
   $("#material-course-meta").innerHTML = course.meta
     .map((part) => `<span>${part}</span>`)
     .join("");
-  $("#material-list").innerHTML = course.materials
-    .map((material) => {
-      const selected = material.id === currentMaterial;
-      return `<button class="material-item${selected ? " selected" : ""}" data-material-item="${material.id}"${selected ? ' aria-current="true"' : ""}><span class="material-week">${material.week}주차 ${material.kind}</span><strong>${material.title}</strong><span class="material-status ${material.status}">${materialStatus[material.status]}</span></button>`;
-    })
-    .join("");
   renderSource();
   renderResult();
   renderBotMode();
 }
+function pageStart(at) {
+  return Number(at.match(/\d+/)[0]);
+}
+function sectionOfPage(material, page) {
+  let section = 0;
+  material.outline.forEach(([at], index) => {
+    if (pageStart(at) <= page) section = index;
+  });
+  return section;
+}
+const chevron = (path) =>
+  `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${path}"/></svg>`;
 function renderSource() {
   const material = findMaterial();
-  const video = material.kind === "영상";
-  const position = material.outline
-    ? `${video ? "재생 위치" : "보는 위치"} ${material.outline[activePart][0]}${video ? ` / ${material.length}` : ` | 전체 ${material.length}`}`
-    : `전체 ${material.length}`;
-  const icon = video
-    ? '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="16" cy="16" r="13"/><path d="m13 10.5 8 5.5-8 5.5z" fill="currentColor"/></svg>'
-    : '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 3.5h11l6 6v19H8z"/><path d="M19 3.5v6h6M12 16h9M12 21h9"/></svg>';
-  const outline = material.outline
-    ? `<h3>${video ? "자막 구간" : "쪽별 내용"}</h3><ol class="source-outline">${material.outline
-        .map(
-          ([at, label], index) =>
-            `<li><button data-part="${index}"${index === activePart ? ' aria-current="true"' : ""}><span>${at}</span>${label}</button></li>`,
-        )
-        .join("")}</ol>`
-    : "";
-  $("#material-source").innerHTML = `<div class="source-frame${video ? " video" : ""}">${icon}<strong>${material.title}</strong><span>${position}</span></div><a class="source-link" href="https://eclass.seoultech.ac.kr/ilos/main/main_form.acl" target="_blank" rel="noopener noreferrer">e-class에서 원본 열기<span aria-hidden="true">↗</span></a>${outline}`;
+  const course = courses[currentCourse];
+  const picker = `<label class="viewer-picker"><span class="visually-hidden">자료 선택</span><select id="material-select">${course.materials
+    .map(
+      (item) =>
+        `<option value="${item.id}"${item.id === currentMaterial ? " selected" : ""}>${item.week}주차 ${item.kind} | ${item.title} (${materialStatus[item.status]})</option>`,
+    )
+    .join("")}</select></label>`;
+  const link = `<a class="viewer-link" href="https://eclass.seoultech.ac.kr/ilos/main/main_form.acl" target="_blank" rel="noopener noreferrer">e-class 원본<span aria-hidden="true">↗</span></a>`;
+  let tools = "";
+  let body;
+  if (material.pages) {
+    const total = material.pages.length;
+    tools = `<div class="viewer-group"><button class="icon-button" data-page-step="-1" aria-label="이전 쪽"${currentPage === 1 ? " disabled" : ""}>${chevron("m10 3.5-4.5 4.5 4.5 4.5")}</button><span class="viewer-count" id="viewer-page">${currentPage} / ${total}</span><button class="icon-button" data-page-step="1" aria-label="다음 쪽"${currentPage === total ? " disabled" : ""}>${chevron("m6 3.5 4.5 4.5L6 12.5")}</button></div><div class="viewer-group"><button class="icon-button" data-zoom="-1" aria-label="축소"${zoomIndex === 0 ? " disabled" : ""}>${chevron("M3.5 8h9")}</button><span class="viewer-count" id="viewer-zoom">${zoomSteps[zoomIndex]}%</span><button class="icon-button" data-zoom="1" aria-label="확대"${zoomIndex === zoomSteps.length - 1 ? " disabled" : ""}>${chevron("M3.5 8h9M8 3.5v9")}</button></div>`;
+    body = `<div class="pdf-pages" id="pdf-pages" tabindex="0" aria-label="${material.title} PDF 미리보기" style="--zoom: ${zoomSteps[zoomIndex] / 100}">${material.pages
+      .map((page, index) => {
+        const number = index + 1;
+        const lines = page.cover
+          ? page.lines.map((line) => `<p>${line}</p>`).join("")
+          : `<ul>${page.lines.map((line) => `<li>${line}</li>`).join("")}</ul><div class="pdf-footer"><span>${course.name} ${material.week}주차 | ${material.title}</span><span>${number}</span></div>`;
+        return `<article class="pdf-page${page.cover ? " cover" : ""}" id="pdf-page-${number}" data-page="${number}" aria-label="${number}쪽"><div class="pdf-sheet"><p class="pdf-title">${page.title}</p>${lines}</div></article>`;
+      })
+      .join("")}</div>`;
+  } else if (material.kind === "영상") {
+    const position = material.outline
+      ? `재생 위치 ${material.outline[activePart][0]} / ${material.length}`
+      : `전체 ${material.length}`;
+    const outline = material.outline
+      ? `<h3>자막 구간</h3><ol class="source-outline">${material.outline
+          .map(
+            ([at, label], index) =>
+              `<li><button data-part="${index}"${index === activePart ? ' aria-current="true"' : ""}><span>${at}</span>${label}</button></li>`,
+          )
+          .join("")}</ol>`
+      : "";
+    body = `<div class="viewer-body"><div class="source-frame video"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="16" cy="16" r="13"/><path d="m13 10.5 8 5.5-8 5.5z" fill="currentColor"/></svg><strong>${material.title}</strong><span>${position}</span></div>${outline}</div>`;
+  } else {
+    body = `<div class="viewer-body"><div class="source-frame"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 3.5h11l6 6v19H8z"/><path d="M19 3.5v6h6M12 16h9M12 21h9"/></svg><strong>${material.title}</strong><span>전체 ${material.length} | 미리보기는 요약이 끝난 뒤 열려요</span></div></div>`;
+  }
+  $("#material-source").innerHTML = `<div class="viewer-toolbar">${picker}${tools}${link}</div>${body}`;
+  const pages = $("#pdf-pages");
+  if (!pages) return;
+  pages.addEventListener("scroll", trackPage, { passive: true });
+  if (currentPage > 1) scrollToPage(currentPage, "instant");
+}
+function scrollToPage(page, behavior) {
+  const pages = $("#pdf-pages");
+  pageLockUntil = performance.now() + (behavior === "smooth" ? 800 : 100);
+  pages.scrollTo({ top: $(`#pdf-page-${page}`).offsetTop - 16, behavior });
+}
+function trackPage() {
+  cancelAnimationFrame(pageFrame);
+  pageFrame = requestAnimationFrame(() => {
+    const pages = $("#pdf-pages");
+    if (!pages || performance.now() < pageLockUntil) return;
+    const mark = pages.getBoundingClientRect().top + 48;
+    let page = 1;
+    for (const node of pages.querySelectorAll(".pdf-page"))
+      if (node.getBoundingClientRect().top <= mark) page = Number(node.dataset.page);
+    const atBottom = pages.scrollTop + pages.clientHeight >= pages.scrollHeight - 4;
+    if (page !== currentPage && !(atBottom && page < currentPage)) setCurrentPage(page, false);
+  });
+}
+function setCurrentPage(page, scroll) {
+  const material = findMaterial();
+  const total = material.pages.length;
+  currentPage = Math.min(Math.max(page, 1), total);
+  $("#viewer-page").textContent = `${currentPage} / ${total}`;
+  $('[data-page-step="-1"]').disabled = currentPage === 1;
+  $('[data-page-step="1"]').disabled = currentPage === total;
+  if (scroll) scrollToPage(currentPage, motionReduced() ? "instant" : "smooth");
+  const section = sectionOfPage(material, currentPage);
+  if (section !== activePart) {
+    activePart = section;
+    markSummarySection(false);
+  }
 }
 function renderResult() {
   const material = findMaterial();
@@ -802,20 +899,40 @@ function markSummarySection(scroll) {
     section.scrollIntoView({ block: "start", behavior: motionReduced() ? "instant" : "smooth" });
 }
 $(".material-panel").addEventListener("click", (event) => {
-  const item = event.target.closest("[data-material-item]");
-  if (item) {
-    selectMaterial(item.dataset.materialItem);
-    renderMaterial();
-    $(`[data-material-item="${currentMaterial}"]`).focus({ preventScroll: true });
+  const jump = event.target.closest("[data-jump]");
+  if (jump) {
+    const material = findMaterial();
+    activePart = Number(jump.dataset.jump);
+    if (material.pages) setCurrentPage(pageStart(material.outline[activePart][0]), true);
+    else renderSource();
+    markSummarySection(false);
+    jump.focus({ preventScroll: true });
     return;
   }
-  const part = event.target.closest("[data-part], [data-jump]");
+  const part = event.target.closest("[data-part]");
   if (part) {
-    const fromSummary = part.matches("[data-jump]");
-    activePart = Number(fromSummary ? part.dataset.jump : part.dataset.part);
+    activePart = Number(part.dataset.part);
     renderSource();
-    markSummarySection(!fromSummary);
-    $(fromSummary ? `[data-jump="${activePart}"]` : `[data-part="${activePart}"]`).focus({ preventScroll: true });
+    markSummarySection(true);
+    $(`[data-part="${activePart}"]`).focus({ preventScroll: true });
+    return;
+  }
+  const step = event.target.closest("[data-page-step]");
+  if (step) {
+    setCurrentPage(currentPage + Number(step.dataset.pageStep), true);
+    if (step.disabled) $(`[data-page-step="${-Number(step.dataset.pageStep)}"]`).focus({ preventScroll: true });
+    return;
+  }
+  const zoom = event.target.closest("[data-zoom]");
+  if (zoom) {
+    const direction = zoom.dataset.zoom;
+    zoomIndex = Math.min(Math.max(zoomIndex + Number(direction), 0), zoomSteps.length - 1);
+    const page = currentPage;
+    renderSource();
+    scrollToPage(page, "instant");
+    currentPage = page;
+    const target = $(`[data-zoom="${direction}"]`);
+    (target.disabled ? $(`[data-zoom="${-Number(direction)}"]`) : target).focus({ preventScroll: true });
     return;
   }
   const tab = event.target.closest("[data-tab]");
@@ -855,11 +972,17 @@ $(".material-panel").addEventListener("click", (event) => {
   if (retry) {
     findMaterial().status = "pending";
     renderMaterial();
-    $(`[data-material-item="${currentMaterial}"]`).focus({ preventScroll: true });
+    $("#material-select").focus({ preventScroll: true });
     showToast("다시 요약을 요청했어요. 끝나면 알림으로 알려드려요.");
     return;
   }
   if (event.target.closest("[data-ask]")) toggleBot(true);
+});
+$(".material-panel").addEventListener("change", (event) => {
+  if (event.target.id !== "material-select") return;
+  selectMaterial(event.target.value);
+  renderMaterial();
+  $("#material-select").focus({ preventScroll: true });
 });
 $(".material-panel").addEventListener("keydown", (event) => {
   const tab = event.target.closest('[role="tab"]');

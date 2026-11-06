@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="캠퍼스 올인원 플랫폼의 실제 정적 목업 화면과 동작 명세를 함께 보는 디자인 리뷰 자료입니다.">
+  <title>화면 리뷰 · 캠퍼스 올인원 플랫폼</title>
+  <link rel="stylesheet" href="review.css">
+  <script src="screens.js" defer></script>
+  <script src="review.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#review-main">본문으로 건너뛰기</a>
+  <div id="review-app" hidden></div>
+  <section class="startup-note" id="startup-note">
+    <p class="eyebrow">CAMPUS-ON / SCREEN SPECIFICATION</p>
+    <h1>화면을 보고, 명세를 함께 읽습니다.</h1>
+    <p>이 자료는 기존 정적 목업의 실제 화면 캡처를 모은 디자인 리뷰입니다. 화면 선택과 확대에는 JavaScript가 필요합니다. 캡처와 원본 명세는 아래 링크로 바로 열 수 있습니다.</p>
+    <div class="fallback-links">
+      <a href="captures/home-desktop.png">홈 화면 이미지</a>
+      <a href="boards/home.png">홈 화면 명세 PNG</a>
+      <a href="../screens/01-홈.md">홈 화면 원본 명세</a>
+      <a href="../../index.html">실제 정적 목업 열기</a>
+    </div>
+    <noscript><p class="notice">JavaScript가 꺼져 있습니다. 위 링크를 사용하거나 JavaScript를 허용한 뒤 다시 열어 주세요.</p></noscript>
+  </section>
+  <dialog id="image-dialog" class="image-dialog" aria-labelledby="image-dialog-title">
+    <div class="dialog-toolbar">
+      <div><p class="eyebrow">ORIGINAL CAPTURE</p><h2 id="image-dialog-title">화면 확대</h2></div>
+      <div class="dialog-actions"><a id="dialog-download" class="button button-small" download>원본 PNG 저장</a><button id="dialog-close" class="button button-small" type="button" autofocus>닫기 <span aria-hidden="true">×</span></button></div>
+    </div>
+    <div class="dialog-image-scroll" tabindex="0" aria-label="원본 화면 이미지. 가로와 세로로 스크롤할 수 있습니다."><img id="dialog-image" alt=""></div>
+    <p class="dialog-hint">원본 크기 · 스크롤하여 전체 화면 확인 · Esc로 닫기</p>
+  </dialog>
+</body>
+</html>
