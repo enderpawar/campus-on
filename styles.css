@@ -400,7 +400,7 @@ main {
   flex-direction: column;
   justify-content: space-between;
   min-width: 0;
-  min-height: 144px;
+  min-height: 288px;
   padding: 20px;
   border: 1px solid var(--color-rule);
   border-radius: var(--radius-card);
