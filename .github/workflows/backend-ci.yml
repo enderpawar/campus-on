@@ -24,8 +24,15 @@ jobs:
           java-version: "21"
           cache: gradle
       - run: chmod +x gradlew
-      # PostgresSchemaTest(Testcontainers)는 Docker가 있는 이 러너에서 실제로 실행된다.
+      # PostgreSQL Testcontainers 테스트는 Docker가 없으면 조용히 skipped된다. 이 러너에는 Docker가 있으므로
+      # skipped가 하나라도 있으면 실제 PostgreSQL 검증이 빠진 것: 초록 CI로 숨기지 않고 실패시킨다.
       - run: ./gradlew test --no-daemon --console=plain
+      - name: Require PostgreSQL tests to actually run
+        run: |
+          reports=$(ls build/test-results/test/TEST-*Postgres*.xml)
+          echo "$reports"
+          grep -h -o '<testsuite [^>]*' $reports
+          if grep -l '<skipped' $reports; then echo "::error::PostgreSQL tests were skipped"; exit 1; fi
 
   docker:
     needs: test
