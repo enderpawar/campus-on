@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: campus_on
+      POSTGRES_USER: campus
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-campus_local}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U campus -d campus_on"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/campus_on
+      DB_USERNAME: campus
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-campus_local}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set (32+ bytes)}
+      ECLASS_ENCRYPTION_KEY: ${ECLASS_ENCRYPTION_KEY:?ECLASS_ENCRYPTION_KEY must be set (32+ bytes)}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:8080}

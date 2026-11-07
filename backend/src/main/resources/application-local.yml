@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: "jdbc:h2:mem:campus;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1"
+    username: sa
+    password: ""
+  flyway:
+    locations: classpath:db/migration,classpath:db/seed-local
+
+campus:
+  jwt:
+    secret: local-only-campus-on-secret-key-32bytes-min
+  public-base-url: http://localhost:8080
+  eclass:
+    encryption-key: local-only-dedicated-eclass-encryption-key

@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: "jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1"
+    username: sa
+    password: ""
+
+campus:
+  jwt:
+    secret: test-only-campus-on-secret-key-32bytes-min
+  public-base-url: http://localhost
+  eclass:
+    encryption-key: test-only-dedicated-eclass-encryption-key
+    sync-enabled: false
+    # 테스트는 동기화를 연달아 호출한다. 쿨다운 자체는 ManualSyncCooldownHttpTest가 프로퍼티로 따로 켠다.
+    manual-sync-cooldown: PT0S

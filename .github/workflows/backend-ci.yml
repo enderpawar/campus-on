@@ -1,0 +1,50 @@
+name: backend-ci
+
+on:
+  push:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+      - run: chmod +x gradlew
+      # PostgresSchemaTest(Testcontainers)는 Docker가 있는 이 러너에서 실제로 실행된다.
+      - run: ./gradlew test --no-daemon --console=plain
+
+  docker:
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      JWT_SECRET: ci-only-campus-on-secret-key-32bytes-min
+      ECLASS_ENCRYPTION_KEY: ci-only-separate-eclass-encryption-key-32bytes-min
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v5
+      - run: docker compose up -d --build --wait
+      - run: |
+          for i in $(seq 1 30); do
+            curl --fail --silent http://localhost:8080/actuator/health && exit 0
+            sleep 2
+          done
+          docker compose logs
+          exit 1
+      - if: always()
+        run: docker compose down -v
