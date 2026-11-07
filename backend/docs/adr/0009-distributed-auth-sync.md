@@ -25,4 +25,4 @@
 
 `LoginAttemptThrottleTest`는 같은 DB를 쓰는 독립 객체의 공유 예산·lease 회수를 검증한다. `DistributedSyncTest`는 독립 sync 객체 간 409/배경 생략, 만료 lease 회수, 가짜 학교 재인증 hold 중 로그아웃/재로그인 대기와 새 연결 보존을 검증한다. 학교 HTTP 중 트랜잭션·커넥션을 잡지 않는다. 시간 기한 테스트는 Clock을 이동하고 sleep을 사용하지 않는다.
 
-`SchemaUpgradeScenarios`의 V2·V4 데이터 업그레이드를 H2와 PostgreSQL 17이 공유한다. PostgreSQL 테스트는 작성·컴파일됐으나 Docker가 없는 로컬에서는 skipped다. 실제 여러 프로세스·네트워크 분할·서버 시계 차이의 부하 검증은 하지 않았다. 서버의 UTC 시계 동기화가 필요하며 lease 만료 뒤의 DB 반영은 세대 검사로 보호한다.
+`SchemaUpgradeScenarios`의 V2·V4 데이터 업그레이드를 H2와 PostgreSQL 17이 공유한다. PostgreSQL 테스트는 로컬(Docker 없음)에서는 skipped이고 CI(PR #1)에서 실행·통과했다. 실제 여러 프로세스·네트워크 분할·서버 시계 차이의 부하 검증은 하지 않았다. 서버의 UTC 시계 동기화가 필요하며 lease 만료 뒤의 DB 반영은 세대 검사로 보호한다.

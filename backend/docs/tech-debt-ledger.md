@@ -14,9 +14,9 @@ velog "Spring Study" 시리즈에서 쓰던 형식(바로 고칠 것 / 나중에
 | [Day 34][d34]·[회고][retro] | JWT 만료 테스트가 `Thread.sleep`에 의존 | `main/global/config/ClockConfig.java`, `JwtProvider`의 `Clock` 주입 | `JwtProviderTest.accessTokenValidBeforeExpiryAndRejectedAfterWithoutSleeping` | 상환 |
 | [Day 25][d25]·[Day 34][d34]·[회고][retro] | 로그아웃해도 토큰이 만료까지 유효, stateless 한계를 설명하지 못함 | `main/member/MemberRepository.java`(`increaseTokenVersion` 원자적 UPDATE), `main/auth/AuthService.java`(`logout`, 학교 연결 삭제 포함), `main/global/security/JwtAuthenticationFilter.java` ([ADR-0005](adr/0005-jwt-access-refresh-token-version.md)) | `AuthFlowHttpTest.logoutInvalidatesExistingTokensAndForgetsSchoolConnection`(옛 이름 `logoutInvalidatesExistingAccessAndRefreshTokens`), `LogoutConcurrencyTest.concurrentLogoutsNeverLoseAnIncrement` | 상환 (처음 구현한 dirty checking 방식은 동시 로그아웃에서 증가를 잃어 Codex 리뷰 #1로 교체, (C) 참고) |
 | [Day 33][d33] | 동시 요청 경합은 "고치지 않을 것" | 학교 학번·수강 소속·일정 외부 키의 DB UNIQUE와 짧은 학교 락, 무결성 예외의 공통 응답 | `GlobalExceptionHandlerWebMvcTest.dataIntegrityViolationBecomes409DataConflict`, 같은 학번 반복 로그인 검사. 자동 등록/수집의 동시 경합 자체를 재현하는 테스트는 없음 | 부분 상환 `미검증`(경합 재현) |
-| [Day 32][d32]·[회고][retro] | H2 호환 모드 ≠ 실제 DB(MySQL 1064). 다음 목표가 Testcontainers | `test/PostgresSchemaTest.java` (PostgreSQL 17, `@ServiceConnection`) | `PostgresSchemaTest.flywayMigrationsMatchEntityMappingsOnRealPostgres`, `PostgresSchemaTest.blankMemberNameIsRejectedByCheckConstraint` | `미검증`: 로컬 Docker 없음(skipped). CI 첫 실행에서 확인 필요 |
-| [Day 31][d31] | Dockerfile에 의존성 레이어 캐시 없음 | `Dockerfile`(`./gradlew dependencies`를 `COPY src` 앞에 분리), `.dockerignore`, `compose.yaml` | CI `docker` 잡 | `미검증`: CI 첫 실행에서 확인 필요 |
-| [Day 32][d32] | `actions/*@v4` deprecation 경고 | `.github/workflows/backend-ci.yml`(`actions/checkout@v5`, `actions/setup-java@v5`) | CI 실행 | `미검증`: 푸시 전 |
+| [Day 32][d32]·[회고][retro] | H2 호환 모드 ≠ 실제 DB(MySQL 1064). 다음 목표가 Testcontainers | `test/PostgresSchemaTest.java`, `test/PostgresSchemaUpgradeTest.java` (PostgreSQL 17, `@ServiceConnection`) | `PostgresSchemaTest` 2건, `PostgresSchemaUpgradeTest` 2건(V2→V6 데이터 업그레이드) | 상환: CI(PR #1)에서 4건 실행·통과. 로컬은 Docker 없어 skipped. CI는 skip을 실패로 처리 |
+| [Day 31][d31] | Dockerfile에 의존성 레이어 캐시 없음 | `Dockerfile`(`./gradlew dependencies`를 `COPY src` 앞에 분리), `.dockerignore`, `compose.yaml` | CI `docker` 잡 | 상환: CI(PR #1)에서 compose 기동·health check 통과 |
+| [Day 32][d32] | `actions/*@v4` deprecation 경고 | `.github/workflows/backend-ci.yml`(`actions/checkout@v5`, `actions/setup-java@v5`) | CI 실행 | 상환: PR #1에서 `test`·`docker` 잡 통과 |
 | [Day 29][d29] | Authorization 마스킹이 스킴을 버림 | 접근 로그에 헤더·본문·쿼리 미기록, `SensitivePaths`로 ICS 경로와 오류 instance 마스킹 | `AuthFlowHttpTest.missingOrMalformedTokensHaveConsistentProblems`, `SensitivePathsTest`, `IcsHttpTest.errorBodyNeverEchoesFeedToken`, 실제 앱 스모크 로그 | 상환 |
 | Day 9 | OS 환경변수가 yml을 덮어써 빌드가 깨짐 | `build.gradle.kts` Test 태스크: `SPRING_*` 제거 + `SPRING_PROFILES_ACTIVE=test`. `bootRun` 태스크도 `SPRING_*` 제거 | `gradlew test` 전체, 외부 DB용 `SPRING_*`가 남은 셸에서 `gradlew bootRun`이 local H2로 기동하는 것 확인 | 상환 (같은 사고가 이번 첫 `bootRun`에서 재현된 뒤 막음) |
 | [회고][retro] §4 | "계층 분리·트랜잭션 경계·인증·테스트를 공모전 프로젝트 코드에 적용" | 이 백엔드 전체 ([ADR-0001](adr/0001-feature-first-packages.md)~[ADR-0004](adr/0004-transaction-boundary.md)) | Claude 독립 리뷰 반영 후 132개 중 130개 통과, 실패 0, PostgreSQL 2개 skipped | 상환 |
@@ -48,7 +48,7 @@ velog "Spring Study" 시리즈에서 쓰던 형식(바로 고칠 것 / 나중에
 | 실패 제한·single-flight의 범위 | V6의 DB 실패 창·예약·sync lease로 여러 서버에 공유합니다. 메모리 경로 제거. 프록시는 기본 불신, CIDR을 명시한 peer의 XFF만 오른쪽부터 읽습니다. 학번은 NFKC/strip·공백/제어 문자 거부, throttle만 소문자 버킷입니다. | 학교 자체 잠금 기준·실학교 Unicode 규칙, 프로세스 간 부하·시계 차이는 `미검증` |
 | 수동 동기화 쿨다운 기준 | 쿨다운은 마지막 성공·실패·로그인 완료 시각 기준입니다(시도 시작 시각 아님). 로그인 직후 1분 차단은 의도한 동작이지만, 첫 수집 전 PENDING 사용자도 수동 재시도를 못 합니다. 구현 오류가 아닌 UX 선택으로 둡니다(Codex 검증 의견) | |
 | 수정 후 HTTP 스모크 | 47건 HTTP 스모크(실제 JAR + 로컬 학교 서버)는 e-class/ERD 전환 시점 실행입니다. Claude 리뷰·Codex 검증 수정 후에는 다시 돌리지 않았습니다 | `미검증` |
-| 리뷰 Low 잔여 | L1 공유 과목명을 회원별 스냅샷이 덮어씀·수강 해제 없음, L2 요청 예산(180)과 과목 상한 불일치(HTTP 전체 기한은 2026-11-08 추가), L3 학번 정규화·형식 검증은 2026-11-08 해소, L6 날짜만 있는 마감 정렬, L7 `course_enrollments.user_id` 인덱스, L8 공지 목록 N+1·게시판 미필터, L9 `posts.author_id` ON DELETE, L10 record `toString`의 비밀값·AES-GCM AAD/키 id·제약 위반 원문 로그, L11 기본 프로필 `local`, L12 학교 세션 오류의 401 재사용, L13 락 순서 주석 불일치, L14 일부(32바이트 미만 e-class 키·nonce 변조 테스트, `CAMPUS_ECLASS_*` 환경변수 격리, `iat` 방어), L15 일부(`CourseController`의 컨트롤러 `@Transactional`, erd-handoff의 posts ERD 차이 표시). 상세는 `build/claude-eclass-erd-review.md` | |
+| 리뷰 Low 잔여 | L1 공유 과목명을 회원별 스냅샷이 덮어씀·수강 해제 없음, L2 요청 예산(180)과 과목 상한 불일치(HTTP 전체 기한은 2026-11-08 추가), L3 학번 정규화·형식 검증은 2026-11-08 해소, L6 날짜만 있는 마감 정렬, L7 `course_enrollments.user_id` 인덱스, L8 공지 목록 N+1·게시판 미필터, L9 `posts.author_id` ON DELETE, L10 record `toString`의 비밀값·AES-GCM AAD/키 id·제약 위반 원문 로그, L11 기본 프로필 `local`, L12 학교 세션 오류의 401 재사용, L13 락 순서 주석 불일치, L14 일부(32바이트 미만 e-class 키·nonce 변조 테스트, `CAMPUS_ECLASS_*` 환경변수 격리, `iat` 방어), L15 일부(`CourseController`의 컨트롤러 `@Transactional`, erd-handoff의 posts ERD 차이 표시). 상세는 `docs/reviews/claude-eclass-erd-review.md` | |
 | 나머지 Spring MVC 표준 예외 | `GlobalExceptionHandler`가 `ResponseEntityExceptionHandler`를 상속하지 않아, 따로 잡지 않은 예외(예: 406 `HttpMediaTypeNotAcceptableException`)는 500 `INTERNAL_ERROR`로 떨어집니다. 415·405는 Codex #3에서 처리했습니다([ADR-0006](adr/0006-problem-detail-errors.md)) | |
 | R01 개인정보 처리방침 | 명세 157행 기준 저장소 산출물에 처리방침이 없습니다. 코드 취약점이 아니라 운영·정책 과제입니다. 운영/정책 담당, 현재 처리하는 데이터·목적·보유/삭제 기준을 반영한 방침의 제공 위치, 서비스 공개 전 확인 조건을 정합니다. 임의 보유기간이나 동의 체크박스를 지어내지 않습니다 | `미충족`, 운영·정책 |
 | R02 최소 수집의 정책적 근거 | 최소성의 정책 문서는 아직 없음. R01에서 학번·학교·선택 프로필·일정·피드·학교 세션 쿠키·선택 저장 학교 비밀번호별 목적/필수·선택/보유·삭제 기준을 대조해야 함. 암호화나 opt-in 파라미터만으로 방침·동의 UI가 갖춰진 것은 아님 | `부분 충족` |
@@ -72,7 +72,7 @@ velog "Spring Study" 시리즈에서 쓰던 형식(바로 고칠 것 / 나중에
 
 ## (C) Codex 리뷰 반영
 
-리뷰어: Codex(`openai-codex/gpt-6.1-sol`), 원문 `build/codex-review.md`. 반영 후 `gradlew test`: 44개 중 42개 통과, 실패 0, 2개 skipped(`PostgresSchemaTest`). 이후 #9 테스트 보강으로 77개 중 75개 통과, 2개 skipped. (D)의 회원 탈퇴 추가 후 82개 중 80개 통과, 2개 skipped.
+리뷰어: Codex(`openai-codex/gpt-6.1-sol`), 원문 `docs/reviews/codex-review.md`. 반영 후 `gradlew test`: 44개 중 42개 통과, 실패 0, 2개 skipped(`PostgresSchemaTest`). 이후 #9 테스트 보강으로 77개 중 75개 통과, 2개 skipped. (D)의 회원 탈퇴 추가 후 82개 중 80개 통과, 2개 skipped.
 
 이 절은 **이메일 인증 버전 당시**의 리뷰 기록이다. 삭제된 가입/BCrypt/옛 테스트 이름은 당시 근거이며, 현행 전환 결과는 (E)와 ADR-0007을 기준으로 본다.
 
@@ -143,7 +143,7 @@ Codex는 운영 코드 결함은 없다고 판정했지만, 테스트가 기준�
 
 ## (F) Claude 독립 리뷰 반영 (e-class 인증·ERD 확장)
 
-리뷰어: Claude(독립 검토, 정적 읽기), 원문 `build/claude-eclass-erd-review.md`(판정 REQUEST_CHANGES). 반영 후 `gradlew test`: 132개 중 130개 통과, 실패 0, 2개 skipped(`PostgresSchemaTest`, Docker 없음). 실제 앱 스모크는 다시 돌리지 않았습니다. ErrorCode는 `ECLASS_SYNC_IN_PROGRESS`(409)·`TOO_MANY_REQUESTS`(429)를 더해 22개입니다. 이후 Codex 교차 검증으로 H3·M3·M7·M8의 보장 범위가 좁혀졌고 후속 수정은 (G)에 있습니다.
+리뷰어: Claude(독립 검토, 정적 읽기), 원문 `docs/reviews/claude-eclass-erd-review.md`(판정 REQUEST_CHANGES). 반영 후 `gradlew test`: 132개 중 130개 통과, 실패 0, 2개 skipped(`PostgresSchemaTest`, Docker 없음). 실제 앱 스모크는 다시 돌리지 않았습니다. ErrorCode는 `ECLASS_SYNC_IN_PROGRESS`(409)·`TOO_MANY_REQUESTS`(429)를 더해 22개입니다. 이후 Codex 교차 검증으로 H3·M3·M7·M8의 보장 범위가 좁혀졌고 후속 수정은 (G)에 있습니다.
 
 | # | 심각도 | 지적 | 처리 |
 |---|---|---|---|
@@ -168,7 +168,7 @@ Codex는 운영 코드 결함은 없다고 판정했지만, 테스트가 기준�
 
 ## (G) Codex 교차 검증 반영 (Claude 수정분)
 
-검증자: Codex(정적 검증 + 기존 테스트 결과 확인), 원문 `build/codex-fix-verification.md`(판정 REQUEST_CHANGES). H1·H2·M1·M4·M5·L5는 확인, H3·M3·M7·M8은 부분 확인이었고 새 결함 F1~F5를 지적했습니다. 반영 후 `gradlew test`: **138개 중 136개 통과, 실패 0, 2개 skipped**(`PostgresSchemaTest`, Docker 없음). 변경 클래스의 테스트 수: `AuthFlowHttpTest` 12, `LoginAttemptThrottleTest` 4, `EclassSyncHttpTest` 8, `EclassHtmlParserTest` 17. V5는 H2에서 Flyway 적용 + validate로만 확인했고 PostgreSQL은 미검증입니다. 47건 HTTP 스모크는 다시 돌리지 않았습니다.
+검증자: Codex(정적 검증 + 기존 테스트 결과 확인), 원문 `docs/reviews/codex-fix-verification.md`(판정 REQUEST_CHANGES). H1·H2·M1·M4·M5·L5는 확인, H3·M3·M7·M8은 부분 확인이었고 새 결함 F1~F5를 지적했습니다. 반영 후 `gradlew test`: **138개 중 136개 통과, 실패 0, 2개 skipped**(`PostgresSchemaTest`, Docker 없음). 변경 클래스의 테스트 수: `AuthFlowHttpTest` 12, `LoginAttemptThrottleTest` 4, `EclassSyncHttpTest` 8, `EclassHtmlParserTest` 17. V5는 H2에서 Flyway 적용 + validate로만 확인했고 PostgreSQL은 미검증입니다. 47건 HTTP 스모크는 다시 돌리지 않았습니다.
 
 | # | 심각도 | 지적 | 처리 |
 |---|---|---|---|
@@ -182,7 +182,7 @@ Codex는 운영 코드 결함은 없다고 판정했지만, 테스트가 기준�
 
 ### 2차 교차 검증
 
-검증자: Codex(`cleanTest test`로 새로 실행: 138개 중 136개 통과, 실패 0, 2개 skipped), 원문 `build/codex-fix-reverification.md`(판정 REQUEST_CHANGES). F1~F5는 모두 해결로 판정했고 새 결함 2건과 테스트 공백을 지적했습니다. 반영 후 `gradlew test`: **142개 중 140개 통과, 실패 0, 2개 skipped**(`AuthFlowHttpTest` 13, `EclassSyncHttpTest` 10, `SchemaUpgradeTest` 2). 실행 중 경고 0건(아래 W1).
+검증자: Codex(`cleanTest test`로 새로 실행: 138개 중 136개 통과, 실패 0, 2개 skipped), 원문 `docs/reviews/codex-fix-reverification.md`(판정 REQUEST_CHANGES). F1~F5는 모두 해결로 판정했고 새 결함 2건과 테스트 공백을 지적했습니다. 반영 후 `gradlew test`: **142개 중 140개 통과, 실패 0, 2개 skipped**(`AuthFlowHttpTest` 13, `EclassSyncHttpTest` 10, `SchemaUpgradeTest` 2). 실행 중 경고 0건(아래 W1).
 
 | # | 심각도 | 지적 | 처리 |
 |---|---|---|---|
@@ -209,8 +209,8 @@ Codex는 운영 코드 결함은 없다고 판정했지만, 테스트가 기준�
 
 ### 남은 한계 6건 후속 구현 (2026-11-08)
 
-M9, M10 테스트 작성, id 우선 dedupe/기존 중복 정리, DB throttle/sync lease, 신뢰 프록시/학번 정규화, 재인증 claim의 연결 변경 대기를 구현했습니다. [ADR-0009](adr/0009-distributed-auth-sync.md)와 `build/codex-remaining-fixes.md`에 결정·검증·한계를 기록합니다. 기존 (F)/(G) 표는 당시 검증 이력이며 현재 처리는 이 후속 기록이 우선합니다.
+M9, M10 테스트 작성, id 우선 dedupe/기존 중복 정리, DB throttle/sync lease, 신뢰 프록시/학번 정규화, 재인증 claim의 연결 변경 대기를 구현했습니다. [ADR-0009](adr/0009-distributed-auth-sync.md)와 `docs/reviews/codex-remaining-fixes.md`에 결정·검증·한계를 기록합니다. 기존 (F)/(G) 표는 당시 검증 이력이며 현재 처리는 이 후속 기록이 우선합니다.
 
-남은 한계: 원래 목록 픽스처는 KJKEY만 있어 원문 항목 id가 없습니다. 합성 item/seq/id 링크 파싱은 테스트했으나 실학교 HTML은 확인하지 않았습니다. id가 없는 경우 일대일·날짜 휴리스틱은 남고 모호한 후보는 보존합니다. 기존 비정규 Unicode 학번은 자동 이관하지 않습니다. PostgreSQL·실학교·여러 프로세스 부하·서버 시계 차이·JAR 47건 스모크는 이번에 실행하지 않았습니다.
+남은 한계: 원래 목록 픽스처는 KJKEY만 있어 원문 항목 id가 없습니다. 합성 item/seq/id 링크 파싱은 테스트했으나 실학교 HTML은 확인하지 않았습니다. id가 없는 경우 일대일·날짜 휴리스틱은 남고 모호한 후보는 보존합니다. 기존 비정규 Unicode 학번은 자동 이관하지 않습니다. 실학교·여러 프로세스 부하·서버 시계 차이·JAR 47건 스모크는 실행하지 않았습니다. PostgreSQL 테스트 4건은 CI(PR #1)에서 실행·통과했습니다.
 
-최종 전체 결과(2026-11-08): **163건 중 159건 통과, 실패 0, 오류 0, 4건 skipped**. tests=163/failures=0/errors=0/skipped=4. PG 빈 DB·업그레이드 각 2건은 Docker 부재로 skipped. 명령: `GRADLE_USER_HOME=C:/Users/jinwoo/.gradle sh gradlew cleanTest test --console=plain`(Git Bash, backend/).
+최종 전체 결과(2026-11-08): **163건 중 159건 통과, 실패 0, 오류 0, 4건 skipped**. tests=163/failures=0/errors=0/skipped=4. PG 빈 DB·업그레이드 각 2건은 로컬 Docker 부재로 skipped, CI(PR #1)에서는 실행·통과. 명령: `GRADLE_USER_HOME=C:/Users/jinwoo/.gradle sh gradlew cleanTest test --console=plain`(Git Bash, backend/).

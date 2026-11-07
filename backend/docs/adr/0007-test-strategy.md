@@ -38,13 +38,13 @@
 |`schedule/IcsHttpTest`|Integration|8|공개 자격·회전·마스킹·수정/삭제 반영·회원 격리·현재 URL·비활성 회원 피드 404|
 |`notice/NoticeHttpTest`|Integration|13|학교/분류/페이지/정렬·본문 문단/목록·복수 학과 태그|
 |`SchemaUpgradeTest`|실제 Flyway + JDBC, H2|2|V2→최신 데이터 보존과 옛 이메일 계정 격리·V4 연결 행의 V5 세대 backfill과 NOT NULL·V6 조정 데이터 쓰기|
-|`PostgresSchemaTest`|PostgreSQL 17 Testcontainers|2|실제 PostgreSQL Flyway/validate·CHECK, Docker 없으면 skipped|
+|`PostgresSchemaTest`|PostgreSQL 17 Testcontainers|2|실제 PostgreSQL Flyway/validate·CHECK. 로컬은 Docker 없어 skipped, CI에서 실행(skip이면 CI 실패)|
 |`auth/RemainingAuthHttpTest`|Integration + MutableClock|6|학교 장애 탈퇴·최근/오래된/없는 auth_time·refresh 보존·틀린 비밀번호·정규화 계정/버킷·400|
 |`global/security/ClientAddressResolverTest`|Unit|5|기본 불신·오른쪽 체인·잘못된 주소·IPv6 CIDR|
 |`eclass/DistributedSyncTest`|Integration + 독립 서비스 객체|4|서버 간 single-flight·만료 소유권·재인증 중 로그아웃/재로그인 대기·새 연결 보존|
-|`PostgresSchemaUpgradeTest`|PostgreSQL 17 Testcontainers|2|H2와 공유하는 V2/V4 데이터 업그레이드·V5 backfill·NOT NULL·V6 조정 데이터, Docker 없으면 skipped|
+|`PostgresSchemaUpgradeTest`|PostgreSQL 17 Testcontainers|2|H2와 공유하는 V2/V4 데이터 업그레이드·V5 backfill·NOT NULL·V6 조정 데이터. 로컬은 Docker 없어 skipped, CI에서 실행(skip이면 CI 실패)|
 
-로컬 결과(2026-11-08, Git Bash에서 `backend/` 작업 디렉터리로 `GRADLE_USER_HOME=C:/Users/jinwoo/.gradle sh gradlew cleanTest test --console=plain`): **163건 중 159건 통과, 실패 0, 오류 0, 4건 skipped**. XML 합계 tests=163/failures=0/errors=0/skipped=4. skipped는 `PostgresSchemaTest` 2건과 `PostgresSchemaUpgradeTest` 2건(Docker 없음)이다. PostgreSQL 테스트는 작성·컴파일됐으나 실제 실행은 미검증이다. 이전 2차 검증 후는 142건 중 140건 통과였다. 테스트 JVM의 `-Xshare:off`는 유지한다. `FakeEclass`는 학번별 장애·비밀번호·스냅샷·세션 만료·hold를 지원한다. 시간은 MutableClock으로 이동하며 sleep은 쓰지 않는다. 기본 test 프로필 쿨다운은 PT0S이며 `ManualSyncCooldownHttpTest`만 활성화한다.
+로컬 결과(2026-11-08, Git Bash에서 `backend/` 작업 디렉터리로 `GRADLE_USER_HOME=C:/Users/jinwoo/.gradle sh gradlew cleanTest test --console=plain`): **163건 중 159건 통과, 실패 0, 오류 0, 4건 skipped**. XML 합계 tests=163/failures=0/errors=0/skipped=4. skipped는 `PostgresSchemaTest` 2건과 `PostgresSchemaUpgradeTest` 2건(Docker 없음)이다. GitHub Actions(PR #1)에서는 이 4건이 PostgreSQL 17로 실행돼 통과했다(skipped 0). CI 워크플로는 PostgreSQL 테스트 XML에 skipped가 있으면 잡을 실패시켜, Docker 문제로 조용히 건너뛰는 것을 막는다. 이전 2차 검증 후는 142건 중 140건 통과였다. 테스트 JVM의 `-Xshare:off`는 유지한다. `FakeEclass`는 학번별 장애·비밀번호·스냅샷·세션 만료·hold를 지원한다. 시간은 MutableClock으로 이동하며 sleep은 쓰지 않는다. 기본 test 프로필 쿨다운은 PT0S이며 `ManualSyncCooldownHttpTest`만 활성화한다.
 
 별도 실제 JAR + loopback 학교 HTTP 서버 + H2 스모크에서 47개 HTTP 확인을 통과했다. 이 스모크는 e-class/ERD 전환 시점 실행이며, Claude 리뷰·Codex 검증 수정 후에는 다시 돌리지 않았다. 학교 폼 인증부터 과목·일정·ICS·공지·세션 재인증·소유권·연결 해제·로그아웃·탈퇴·새 id 재진입까지 연결했다. 과목 링크를 공유하는 두 과제 중 하나가 사라지는 문제를 이 실행에서 재현·수정하고 파서 회귀를 유지했다. 실제 학교 계정/외부 DB는 사용하지 않았다.
 
@@ -89,4 +89,4 @@
 
 ## 2026-11-08 회귀 검증
 
-원본 전체 파일을 되돌린 실행과 구별하여, 새 동작을 제거한 회귀 변형을 실행했다. 최근 인증 탈퇴를 막기, refresh의 auth_time을 발급 시각으로 갱신하기, 원문 id 판정을 제거하기, DB alias 병합을 생략하기, 신뢰 프록시를 모두 무시하기에서 새 테스트 7건이 실패했다. 연결 변경의 claim 검사를 제거한 별도 실행은 로그아웃·재로그인 대기 테스트 2건 모두 실패했다. 모두 원복한 뒤 최종 전체 스위트를 통과했다. M10·DB throttle/sync 공유·학번 정규화에 대해 원본 전체 코드의 수정 전 실패 실행은 하지 않았다. 상세 명령과 오류는 `build/codex-remaining-fixes.md`에 기록한다.
+원본 전체 파일을 되돌린 실행과 구별하여, 새 동작을 제거한 회귀 변형을 실행했다. 최근 인증 탈퇴를 막기, refresh의 auth_time을 발급 시각으로 갱신하기, 원문 id 판정을 제거하기, DB alias 병합을 생략하기, 신뢰 프록시를 모두 무시하기에서 새 테스트 7건이 실패했다. 연결 변경의 claim 검사를 제거한 별도 실행은 로그아웃·재로그인 대기 테스트 2건 모두 실패했다. 모두 원복한 뒤 최종 전체 스위트를 통과했다. M10·DB throttle/sync 공유·학번 정규화에 대해 원본 전체 코드의 수정 전 실패 실행은 하지 않았다. 상세 명령과 오류는 `docs/reviews/codex-remaining-fixes.md`에 기록한다.

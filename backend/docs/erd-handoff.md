@@ -35,8 +35,8 @@
 2. V3는 `member`를 `users`로 rename한다. 기존 이메일을 학번으로 추측하지 않는다. 기존 계정은 `external_ref='legacy:<id>'`, `SUSPENDED`, `token_version+1`로 격리하고 이메일·로컬 비밀번호 해시 컬럼은 제거한다. 해당 JWT는 더 이상 인증되지 않는다.
 3. 기존 사용자·일정·피드·공지 id와 연결 관계는 보존한다. 기존 이메일 계정 데이터를 새 학교 계정에 자동 합치지 않는다. 별도 이관이 필요하면 소유권 확인과 정책 승인이 먼저다. 기존 ICS 비밀값은 이관 자체로 회전하지 않는다.
 4. V4는 과목·소속을 추가하고, `notice`→`posts` rename 후 학교/기존 source별 게시판을 만들고 연결한다. 원문 URL·요약·게시 시각을 보존한다.
-5. V5는 `eclass_connections.connection_generation VARCHAR(36) NOT NULL`을 추가한다. 기존 행은 `'legacy-' || user_id`로 채우고, 이후 로그인마다 새 UUID로 바꾼다. H2에서 Flyway 적용 + validate로만 확인했고 PostgreSQL은 미검증이다.
-6. `SchemaUpgradeTest`가 V2 데이터 생성 → 최신 버전 이관 후 id·토큰 버전·상태·공지 내용을 검증한다. H2 검증이며 PostgreSQL 검증의 대체는 아니다. 같은 시나리오를 PostgreSQL 17의 `PostgresSchemaUpgradeTest`도 상속한다. V4 연결 → V5 backfill·NOT NULL → V6 lease/claim·throttle 테이블 쓰기까지 검증한다. Docker 부재로 PG는 skipped다.
+5. V5는 `eclass_connections.connection_generation VARCHAR(36) NOT NULL`을 추가한다. 기존 행은 `'legacy-' || user_id`로 채우고, 이후 로그인마다 새 UUID로 바꾼다.
+6. `SchemaUpgradeTest`(H2)와 `PostgresSchemaUpgradeTest`(PostgreSQL 17)가 같은 시나리오(`SchemaUpgradeScenarios`)를 실행한다. V2 데이터 생성 → 최신 버전 이관 후 id·토큰 버전·상태·공지 내용, V4 연결 → V5 backfill·NOT NULL → V6 lease/claim·throttle 테이블 쓰기까지 검증한다. PostgreSQL 쪽은 로컬에 Docker가 없어 skipped지만 CI(PR #1)에서 실행·통과했다.
 7. local 전용 V1000 시드는 새 게시판/게시글 구조의 예시 4건이다. 운영 Flyway 위치에는 포함하지 않는다. local DB는 메모리 DB이므로 실행 시 재생성한다.
 
 운영 적용 전에는 백업·복원 절차와 PostgreSQL CI 결과를 확인해야 한다. 이번 작업은 외부 DB에 접속하거나 운영 마이그레이션을 실행하지 않았다.
@@ -72,8 +72,8 @@ E05는 API 저장/조회 계약을 반영했지만 실학교 원문에서 강의
 
 ## 6. 검증 증거와 한계
 
-- 2026-11-08 Git Bash의 `backend/`에서 `GRADLE_USER_HOME=C:/Users/jinwoo/.gradle sh gradlew cleanTest test --console=plain`: 163건 중 159건 통과, 실패 0, 오류 0, 4건 skipped. XML 합계 tests=163/failures=0/errors=0/skipped=4. PG17 빈 DB 2건·데이터 업그레이드 2건은 Docker 없음으로 skipped. H2와 PG 테스트 컴파일만 확인했습니다. 이전 2차 교차 검증 후는 142/140/0/2였습니다.
+- 2026-11-08 Git Bash의 `backend/`에서 `GRADLE_USER_HOME=C:/Users/jinwoo/.gradle sh gradlew cleanTest test --console=plain`: 163건 중 159건 통과, 실패 0, 오류 0, 4건 skipped. XML 합계 tests=163/failures=0/errors=0/skipped=4. PG17 빈 DB 2건·데이터 업그레이드 2건은 로컬 Docker 없음으로 skipped이고, GitHub Actions(PR #1)에서는 실행·통과했습니다(skipped 0). 이전 2차 교차 검증 후는 142/140/0/2였습니다.
 - 실제 JAR + 로컬 학교 HTTP 서버 + H2: 로그인/수집/일정/과목/공지/ICS/세션 만료/탈퇴 등 47개 HTTP 확인 통과. 이 스모크는 e-class/ERD 전환 시점 실행이며 Claude 리뷰·Codex 검증 수정 후에는 다시 돌리지 않았다. 실제 HTTP 수집에서 발견한 과목 링크 공유 시 과제 누락을 수정하고 회귀를 유지했다.
 - `HttpEclassGatewayTest`는 실제 Java HTTP 클라이언트와 로컬 서버로 폼·CSRF·쿠키·리다이렉트·인증 표식·실패를 검증한다. 일반 기능 테스트의 `EclassTestConfiguration`은 외부 학교 경계만 대체한다.
-- 실제 학교 계정 라이브 인증, PostgreSQL/Testcontainers, Docker/CI는 미검증이다. 실제 로그인 UI/폼 변경, 학교의 자동화 허용 정책, 실명/학과/학년·강의 길이의 신뢰할 수 있는 추출 경로는 배포 전 확인해야 한다.
+- 실제 학교 계정 라이브 인증은 미검증이다. PostgreSQL/Testcontainers와 Docker compose는 CI에서만 확인했다(로컬 Docker 없음). 실제 로그인 UI/폼 변경, 학교의 자동화 허용 정책, 실명/학과/학년·강의 길이의 신뢰할 수 있는 추출 경로는 배포 전 확인해야 한다.
 - 강의계획서는 명시적 시험 날짜가 있는 HTML만 처리한다. PDF 추출·주차 기반 날짜 추정은 하지 않는다.
