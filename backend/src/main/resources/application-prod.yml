@@ -1,0 +1,13 @@
+# 기본값 없음: 값이 비면 기동 실패 (Day 29 fail-fast)
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+campus:
+  jwt:
+    secret: ${JWT_SECRET}
+  public-base-url: ${PUBLIC_BASE_URL}
+  eclass:
+    encryption-key: ${ECLASS_ENCRYPTION_KEY}

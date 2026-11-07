@@ -1,0 +1,57 @@
+name: backend-ci
+
+on:
+  push:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+      - run: chmod +x gradlew
+      # PostgreSQL Testcontainers 테스트는 Docker가 없으면 조용히 skipped된다. 이 러너에는 Docker가 있으므로
+      # skipped가 하나라도 있으면 실제 PostgreSQL 검증이 빠진 것: 초록 CI로 숨기지 않고 실패시킨다.
+      - run: ./gradlew test --no-daemon --console=plain
+      - name: Require PostgreSQL tests to actually run
+        run: |
+          reports=$(ls build/test-results/test/TEST-*Postgres*.xml)
+          echo "$reports"
+          grep -h -o '<testsuite [^>]*' $reports
+          if grep -l '<skipped' $reports; then echo "::error::PostgreSQL tests were skipped"; exit 1; fi
+
+  docker:
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      JWT_SECRET: ci-only-campus-on-secret-key-32bytes-min
+      ECLASS_ENCRYPTION_KEY: ci-only-separate-eclass-encryption-key-32bytes-min
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v5
+      - run: docker compose up -d --build --wait
+      - run: |
+          for i in $(seq 1 30); do
+            curl --fail --silent http://localhost:8080/actuator/health && exit 0
+            sleep 2
+          done
+          docker compose logs
+          exit 1
+      - if: always()
+        run: docker compose down -v

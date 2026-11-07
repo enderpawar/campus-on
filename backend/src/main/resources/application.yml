@@ -1,0 +1,45 @@
+spring:
+  # ClientAddressResolver alone interprets forwarding headers.
+  application:
+    name: campus-on-api
+  profiles:
+    default: local
+  forward-headers-strategy: NONE
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    locations: classpath:db/migration
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+logging:
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level [%X{requestId}] %logger{36} - %msg%n"
+
+campus:
+  security:
+    trusted-proxies: ""
+  withdrawal:
+    offline-recent-auth: PT10M
+  jwt:
+    access-ttl: PT15M
+    refresh-ttl: P14D
+  eclass:
+    base-url: https://eclass.seoultech.ac.kr
+    request-timeout: PT10S
+    sync-lease: PT5M
+    sync-delay: PT5M
+    failure-backoff: PT30M
+    manual-sync-cooldown: PT1M
+  auth:
+    throttle:
+      max-failures-per-student: 5
+      max-failures-per-client: 20
+      reservation-lease: PT15S
+      window: PT15M
